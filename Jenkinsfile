@@ -1,22 +1,20 @@
 node {
+	properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')), disableConcurrentBuilds(), gitLabConnection(''), pipelineTriggers([pollSCM('H/15 * * * *')])])
+	
 	stage("SCM Checkout"){
 		checkout scm
 	}
 	
-	def registryHost = 'regdocker.nexdev.net'
-	def imageName = "aspnetapp:${env.BUILD_ID}"
-	def tagName = "${registryHost}/larry/${imageName}"
-	def customImage
+	def imageName = "larry/aspnetapp:${env.BUILD_ID}"
+	def image
 	
 	stage("Build Image"){
-		customImage = docker.build(imageName)
+		image = docker.build(imageName)
 	}
 	
 	stage("Push Image to Registry"){
-		docker.withRegistry("http://${registryHost}"){
-			customImage.tag(tagName)
-			
-			customImage.push(tagName)
+		docker.withRegistry("http://regdocker.nexdev.net","shipper"){
+			image.push()
 		}
 	}
 }
