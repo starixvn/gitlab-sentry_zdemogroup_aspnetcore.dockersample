@@ -23,12 +23,12 @@ node {
 
 	stage("Pull & Run App Container"){
 		docker.withRegistry(registryHost, regUser){
-			container =	docker.image(imageName).run("-p 4000:4000")
+			container =	docker.image(imageName).run("-p 4000:80")
 		}
 
-		input message: 'Would you like to stop app and dispose container?', ok: 'OK', parameters: [booleanParam(defaultValue: true, description: '', name: 'StopApp')], submitter: 'admin'
+		input message: 'Would you like to stop app and dispose container?', ok: 'Confirm', parameters: [booleanParam(defaultValue: true, description: '', name: 'StopApp')], submitter: 'admin'
 
-		if(params.StopApp){
+		if(StopApp){
 			container.stop()
 		}
 	}
