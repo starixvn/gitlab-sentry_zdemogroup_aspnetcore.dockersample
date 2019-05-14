@@ -13,7 +13,7 @@ node {
 	}
 	
 	stage("Push Image to Registry"){
-		docker.withRegistry(registryHost) {
+		docker.withRegistry("http://${registryHost}"){
 			customImage.tag(tagName)
 			
 			customImage.push(tagName)
