@@ -26,9 +26,9 @@ node {
 			container =	docker.image(imageName).run("-p 4000:80")
 		}
 
-		input message: 'Would you like to stop app and dispose container?', ok: 'Confirm', parameters: [choice(choices: ['Yes', 'No'], description: '', name: 'Stop')], submitter: 'admin'
+			def stopConfirm = input message: 'Would you like to stop app and dispose container?', ok: 'Confirm', parameters: [choice(choices: ['Yes', 'No'], description: '', name: 'Stop')], submitter: 'admin'
 
-		if(Stop){
+		if(stopConfirm == 'Yes'){
 			container.stop()
 		}
 	}
