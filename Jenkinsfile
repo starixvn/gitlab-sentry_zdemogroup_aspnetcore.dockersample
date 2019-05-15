@@ -13,12 +13,12 @@ node {
 	
 	stage("Build Image"){
 		image = docker.build(imageName)
-	}
-	
-	docker.withRegistry(registryHost, regUser)
+	}	
 
-	stage("Push Image to Registry"){		
-		image.push()		
+	stage("Push Image to Registry"){
+		docker.withRegistry(registryHost, regUser){		
+			image.push()
+		}
 	}
 
 	stage("Remove local image"){	
