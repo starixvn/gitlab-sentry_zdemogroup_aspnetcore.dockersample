@@ -3,9 +3,8 @@ node {
 	
 	stage("SCM Checkout"){
 		checkout scm
-	}
+	}	
 	
-	def registryHost = "https://hub.docker.com"
 	def regUser = "larrytran"
 	def imageName = "larrytran/aspnetapp:${env.BUILD_ID}"
 	def image
@@ -16,7 +15,7 @@ node {
 	}	
 
 	stage("Push Image to Registry"){
-		docker.withRegistry(registryHost, regUser){		
+		docker.withRegistry("", regUser){		
 			image.push()
 		}
 	}
@@ -25,9 +24,11 @@ node {
 		sh "docker image rm ${image.id} -f"
 	}
 
-	stage("Pull & Run App Container"){		
-		container =	docker.image(imageName).run("-p 4000:80")
-
+	stage("Pull & Run App Container"){
+		docker.withRegistry("", regUser){		
+			container =	docker.image(imageName).run("-p 4000:80")
+		}
+		
 		def stopConfirm = input message: 'Would you like to stop app and dispose container?', ok: 'Confirm', parameters: [choice(choices: ['Yes', 'No'], description: '', name: 'Stop')], submitter: 'admin'
 
 		if(stopConfirm == 'Yes'){
