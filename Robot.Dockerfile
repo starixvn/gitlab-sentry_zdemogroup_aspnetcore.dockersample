@@ -43,8 +43,8 @@ RUN wget -q "https://github.com/mozilla/geckodriver/releases/download/$GECKO_DRI
       && rm geckodriver-$GECKO_DRIVER_VERSION-linux64.tar.gz
 
 # Prepare binaries to be executed
-COPY tests/robot/bin/chromedriver.sh /opt/robotframework/bin/chromedriver
-COPY tests/robot/bin/chromium-browser.sh /opt/robotframework/bin/chromium-browser
+COPY tests/robot/commands/chromedriver.sh /opt/robotframework/bin/chromedriver
+COPY tests/robot/commands/chromium-browser.sh /opt/robotframework/bin/chromium-browser
 
 # FIXME: below is a workaround, as the path is ignored
 RUN mv /usr/lib64/chromium-browser/chromium-browser /usr/lib64/chromium-browser/chromium-browser-original \
