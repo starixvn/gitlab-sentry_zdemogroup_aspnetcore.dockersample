@@ -5,18 +5,14 @@ Library			SeleniumLibrary
 ${BROWSER}		%{BROWSER}
 
 *** Test Cases ***
-Visit Baidu
-	Open Browser			https://www.baidu.com		${BROWSER}
+Visit Home
+	Open Browser			http://192.168.56.111:4000/		${BROWSER}
 	Capture Page Screenshot
 
-Visit Bing
-	Open Browser			https://www.bing.com		${BROWSER}
+Visit About
+	Open Browser			http://192.168.56.111:4000/Home/About		${BROWSER}
 	Capture Page Screenshot
 
-Visit Google
-	Open Browser			https://www.google.com		${BROWSER}
-	Capture Page Screenshot
-
-Visit Yahoo
-	Open Browser			https://search.yahoo.com	${BROWSER}
+Visit Contact
+	Open Browser			http://192.168.56.111:4000/Home/Contact		${BROWSER}
 	Capture Page Screenshot
