@@ -2,7 +2,7 @@
 Library			SeleniumLibrary
 
 *** Variables ***
-${BROWSER}		firefox
+${BROWSER}		%{BROWSER}
 
 *** Test Cases ***
 Visit Baidu
