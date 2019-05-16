@@ -6,7 +6,7 @@ node {
 	}	
 	
 	stage("Run test"){
-		docker.image("larrytran/robbotframework:3.1.1").inside(){
+		docker.image("larrytran/robbotframework:3.1.1").inside("-u root"){
 			sh "xvfb-run --server-args='-screen 0 1920x1080x24 -ac' robot tests/robot/simpletest.robot"
 		}
 	}
