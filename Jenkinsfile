@@ -18,7 +18,7 @@ node {
 			stage("Automation Test With Firefox"){
 				sh "mkdir -p testReports/firefox"
 
-				docker.image("larrytran/robbotfw:3.1.1").inside('-u root -e "BROWSER=firefox"'){				
+				docker.image("larrytran/robotfw:3.1.1").inside('-u root -e "BROWSER=firefox"'){				
 					sh "xvfb-run --server-args='-screen 0 1920x1080x24 -ac' robot --outputDir testReports/firefox tests/robot/simpletest.robot"
 				}
 			}
