@@ -18,16 +18,8 @@ node {
 			stage("Automation Test With Firefox"){
 				sh "mkdir -p testReports/firefox"
 
-				docker.image("larrytran/robbotframework:3.1.1").inside('-u root -e "BROWSER=firefox"'){				
+				docker.image("larrytran/robbotfw:3.1.1").inside('-u root -e "BROWSER=firefox"'){				
 					sh "xvfb-run --server-args='-screen 0 1920x1080x24 -ac' robot --outputDir testReports/firefox tests/robot/simpletest.robot"
-				}
-			}
-
-			stage("Automation Test With Chrome"){
-				sh "mkdir -p testReports/chrome"
-
-				docker.image("larrytran/robbotframework:3.1.1").inside('-u root -e "BROWSER=chrome"'){				
-					sh "xvfb-run --server-args='-screen 0 1920x1080x24 -ac' robot --outputDir testReports/chrome tests/robot/simpletest.robot"
 				}
 			}
 		}
