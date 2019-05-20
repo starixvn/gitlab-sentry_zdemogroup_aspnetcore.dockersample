@@ -11,7 +11,7 @@ namespace AspNetCoreSample.Controllers
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
+            ViewData["Message"] = "This is an Asp.Net Core Application running on Docker container.";
 
             return View();
         }
