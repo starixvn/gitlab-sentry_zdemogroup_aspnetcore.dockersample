@@ -21,11 +21,13 @@ node {
 			stage("Run Automation Test"){
 				sh "mkdir -p testReports/firefox"
 
-				docker.image("larrytran/robotfw-firefox:3.1.1").inside('-u root -e "BROWSER=firefox"'){				
-					sh "xvfb-run --server-args='-screen 0 1920x1080x24 -ac' robot --outputDir testReports/firefox tests/robot/simpletest.robot"
+				try{
+					docker.image("larrytran/robotfw-firefox:3.1.1").inside('-u root -e "BROWSER=firefox"'){				
+						sh "xvfb-run --server-args='-screen 0 1920x1080x24 -ac' robot --outputDir testReports/firefox tests/robot/simpletest.robot"
+					}
+				}finally{
+					publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'testReports/firefox', reportFiles: 'report.html', reportName: 'Selenium Report', reportTitles: ''])
 				}
-
-				publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'testReports/firefox', reportFiles: 'report.html', reportName: 'Selenium Report', reportTitles: ''])
 			}
 		}
 	}
