@@ -29,8 +29,8 @@ node {
 			}			
 		}
 	}finally{
-		publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'testReports/firefox', reportFiles: 'report.html', reportName: 'Selenium Report', reportTitles: ''])
-		container.close()
+		container?.stop()
+		publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'testReports/firefox', reportFiles: 'report.html', reportName: 'Selenium Report', reportTitles: ''])		
 	}
 
 	stage("Push App Image To Registry"){
