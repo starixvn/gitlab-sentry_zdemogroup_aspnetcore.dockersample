@@ -42,5 +42,15 @@ namespace AspNetCoreSample.Tests.Controllers
             // Assert
             Assert.IsType<ViewResult>(result);
         }
+
+        [Fact]
+        public void Error_Any_ReturnViewResult()
+        {
+            // Act
+            var result = controller.Error();
+
+            // Assert
+            Assert.IsType<ViewResult>(result);
+        }
     }
 }
