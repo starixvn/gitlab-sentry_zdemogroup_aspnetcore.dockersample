@@ -25,4 +25,4 @@ Visit Contact
 Fail Test
     Create Session  contact  http://192.168.56.111:4000/Home/Contact
     ${resp}=  Get Request  contact  /
-    Should Be Equal As Strings  ${resp.status_code}  200
+    Should Be Equal As Strings  ${resp.status_code}  404
