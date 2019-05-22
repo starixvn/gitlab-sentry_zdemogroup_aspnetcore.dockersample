@@ -11,7 +11,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        //bat label: "Prepare SonarQube", script: "\"${tool 'SonarScanner for MSBuild'}\\MSBuild.SonarQube.Runner.exe\" begin /k:Up /n:\"NexOps / Up\" /v:%BUILD_NUMBER% /d:sonar.cs.opencover.reportsPaths=%WORKSPACE%\\coverage.xml /d:sonar.cs.xunit.reportsPaths=%WORKSPACE%\\UnitTest.xml"
+        bat label: "Prepare SonarQube", script: "\"${tool 'SonarScanner for MSBuild'}\\MSBuild.SonarQube.Runner.exe\" begin /k:AspNetCoreSample /n:\"Larry / AspNetCoreSample\" /v:%BUILD_NUMBER% /d:sonar.cs.opencover.reportsPaths=%WORKSPACE%\\CoverageReports\\*.xml /d:sonar.cs.vstest.reportsPaths=%WORKSPACE%\\TestResults\\*.trx"
         bat label: 'Restore nuget', script: "%JENKINS_HOME%\\tools\\commands\\nuget-restore.bat"
         bat label: "MsBuild", script: "MsBuild AspNetCoreSample.sln /t:Rebuild /p:DebugType=Full /nologo /v:minimal /l:XmlFileLogger,\"%JENKINS_HOME%\\tools\\MSBuild.ExtensionPack.Loggers.dll\";logfile=MsBuild.xml;encoding=UTF-8"        
       }    
@@ -39,6 +39,23 @@ pipeline {
           }
         }
       }      
-    }    
+    }
+
+    stage("SonarQube Analysis"){
+      steps{
+        bat label: "Run analysis", script: "\"${tool 'SonarScanner for MSBuild'}\\MSBuild.SonarQube.Runner.exe\" end"
+      }     
+    }
+  }
+
+  post{
+    always{
+      archiveArtifacts "*.xml"      
+      cobertura coberturaReportFile: "cobertura.xml", onlyStable: false
+      xunit thresholds: [failed(failureNewThreshold: '1', failureThreshold: '1')], tools: [xUnitDotNet(deleteOutputFiles: true, failIfNotNew: true, pattern: 'UnitTest.xml', skipNoTestFiles: false, stopProcessingIfError: true)]      
+    }
+    unsuccessful{
+      emailext body: '$DEFAULT_CONTENT', recipientProviders: [developers(), requestor()], subject: '$DEFAULT_SUBJECT', to: 'larry.tran@starixsoft.com'
+    }
   }
 }
