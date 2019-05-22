@@ -52,6 +52,13 @@ pipeline {
         bat label: "Rocketor Publish", script: "\"%JENKINS_HOME%\\tools\\RocketorPublish\\Fanex.Rocketor.Publish.exe\" --locationids=11202 --branchname=\"%GIT_BRANCH%\" --commithash=%GIT_COMMIT% --workspace=\"%WORKSPACE%\" --token=1ced7d6b84824e49860e27ceb7f6efef"
       }     
     }
+
+    stage("Run Automation Test"){
+      steps{
+        bat label: "Prepare folder", script: "IF NOT EXIST \"%WORKSPACE%\\SeleniumReport\" mkdir SeleniumReport"
+        bat label: "RobotFramework", script: "robot --outputDir SeleniumReport tests/robot/simpletest.robot"
+      }
+    }
   }
 
   post{

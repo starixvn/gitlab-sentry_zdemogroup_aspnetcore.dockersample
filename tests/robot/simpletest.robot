@@ -1,21 +1,21 @@
 *** Settings ***
-Library			SeleniumLibrary
+Library			Selenium2Library
 
 *** Variables ***
-${BROWSER}		%{BROWSER}
+${BROWSER}		Firefox
 
 *** Test Cases ***
 Visit Home
-	Open Browser			http://192.168.56.111:4000/		${BROWSER}
+	Open Browser			http://10.18.200.213:8089/		${BROWSER}
 	Capture Page Screenshot
 	[Teardown]    Close Browser
 
 Visit About
-	Open Browser			http://192.168.56.111:4000/Home/About		${BROWSER}
+	Open Browser			http://10.18.200.213:8089/Home/About		${BROWSER}
 	Capture Page Screenshot
 	[Teardown]    Close Browser
 
 Visit Contact
-	Open Browser			http://192.168.56.111:4000/Home/Contact		${BROWSER}
+	Open Browser			http://10.18.200.213:8089/Home/Contact		${BROWSER}
 	Capture Page Screenshot
 	[Teardown]    Close Browser
