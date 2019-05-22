@@ -50,9 +50,7 @@ pipeline {
 
   post{
     always{
-      archiveArtifacts "*.xml"      
-      cobertura coberturaReportFile: "cobertura.xml", onlyStable: false
-      xunit thresholds: [failed(failureNewThreshold: '1', failureThreshold: '1')], tools: [xUnitDotNet(deleteOutputFiles: true, failIfNotNew: true, pattern: 'UnitTest.xml', skipNoTestFiles: false, stopProcessingIfError: true)]      
+      archiveArtifacts "*.xml"
     }
     unsuccessful{
       emailext body: '$DEFAULT_CONTENT', recipientProviders: [developers(), requestor()], subject: '$DEFAULT_SUBJECT', to: 'larry.tran@starixsoft.com'
