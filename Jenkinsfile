@@ -1,53 +1,44 @@
-node {
-	properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '5')), disableConcurrentBuilds(), gitLabConnection('')])
-	
-	stage("SCM Checkout"){
-		checkout scm
-	}
+pipeline {
+  agent {
+    label "master"
+  }
 
-	def regUser = "larrytran"
-	def imageName = "larrytran/aspnetapp:${env.BUILD_ID}"
-	def image
-	def imageId
-	def container
-	
-	stage("Build App Image"){
-		image = docker.build(imageName)
-		imageId = image.id
-	}
-	
-	try{
-		stage("Run App Container"){		
-			container = image.run("-p 4000:80")
-		}
+  options{
+    buildDiscarder(logRotator(numToKeepStr: '5'))    
+    disableConcurrentBuilds()
+  }
 
-		stage("Run Automation Test"){
-			sh "mkdir -p testReports/firefox"
+  stages {
+    stage('Build') {
+      steps {
+        //bat label: "Prepare SonarQube", script: "\"${tool 'SonarScanner for MSBuild'}\\MSBuild.SonarQube.Runner.exe\" begin /k:Up /n:\"NexOps / Up\" /v:%BUILD_NUMBER% /d:sonar.cs.opencover.reportsPaths=%WORKSPACE%\\coverage.xml /d:sonar.cs.xunit.reportsPaths=%WORKSPACE%\\UnitTest.xml"
+        bat label: 'Restore nuget', script: "%JENKINS_HOME%\\tools\\commands\\nuget-restore.bat"
+        bat label: "MsBuild", script: "MsBuild AspNetCoreSample.sln /t:Rebuild /p:DebugType=Full /nologo /v:minimal /l:XmlFileLogger,\"%JENKINS_HOME%\\tools\\MSBuild.ExtensionPack.Loggers.dll\";logfile=MsBuild.xml;encoding=UTF-8"        
+      }    
+    }
 
-			docker.image("larrytran/robotfw-firefox:3.1.1").inside('-u root -e "BROWSER=firefox"'){				
-				sh "xvfb-run --server-args='-screen 0 1920x1080x24 -ac' robot --outputDir testReports/firefox tests/robot/simpletest.robot"
-			}			
-		}
-	}finally{
-		container?.stop()
-		publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'testReports/firefox', reportFiles: 'report.html', reportName: 'Selenium Report', reportTitles: ''])		
-	}
+    stage("Test"){
+      parallel{
+        stage("C# Test"){
+          steps{
+            bat label: "Generate C# Coverage", script: "powershell -file \"%JENKINS_HOME%\\tools\\Commands\\NetCoreCoverage.ps1\" \"%WORKSPACE%\""
+          }
+        }
 
-	stage("Push App Image To Registry"){
-		docker.withRegistry("", regUser){		
-			image.push()
-		}
-	}
+		stage("TypeScript Test"){
+          steps{
+            echo "Generate TS Coverage"           
+          }
+        }
 
-	stage("Deploy"){
-		sh "docker image rm ${imageId} -f"
-
-		docker.withRegistry("", regUser){
-			docker.image(imageId).withRun("-p 4000:80"){
-				sleep 3
-
-				sh "curl -I http://192.168.56.111:4000/Home/About"
-			}
-		}
-	}
+        stage("TSQL Test"){
+          steps{
+            echo "Deploy database project"
+            echo "Deploy database test project"
+            echo "Generate TSQL Coverage"
+          }
+        }
+      }      
+    }    
+  }
 }
