@@ -25,7 +25,7 @@ pipeline {
           }
         }
 
-		stage("TypeScript Test"){
+		    stage("TypeScript Test"){
           steps{
             echo "Generate TS Coverage"           
           }
