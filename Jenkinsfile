@@ -17,7 +17,7 @@ pipeline {
       }    
     }
     
-    stage("Test"){
+    stage("Unit Test"){
       parallel{
         stage("TypeScript Test"){
           steps{
@@ -64,6 +64,12 @@ pipeline {
             always{
               publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'SeleniumReport', reportFiles: 'report.html', reportName: 'Selenium Report', reportTitles: ''])		
             }
+          }
+        }
+
+        stage("Integration Test"){
+          steps{
+            echo "Run Integration Test"           
           }
         }
 
