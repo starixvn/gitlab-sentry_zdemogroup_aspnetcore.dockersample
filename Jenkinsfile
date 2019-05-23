@@ -21,7 +21,8 @@ pipeline {
       parallel{
         stage("TypeScript Test"){
           steps{
-            echo "Generate TS Coverage"           
+            echo "Generate TS Coverage"
+            sleep 2
           }
         }
 
@@ -30,6 +31,7 @@ pipeline {
             echo "Deploy database project"
             echo "Deploy database test project"
             echo "Generate TSQL Coverage"
+            sleep 2
           }
         }
 
@@ -74,25 +76,29 @@ pipeline {
 
         stage("Integration Test"){
           steps{
-            echo "Run Integration Test"           
+            echo "Run Integration Test"   
+            sleep 2        
           }
         }
 
         stage("Functional Test"){
           steps{
             echo "Run Functional Test"           
+            sleep 2
           }
         }
 
         stage("Acceptance Test"){
           steps{
             echo "Generate Acceptance Test"           
+            sleep 2
           }
         }
 
         stage("Performance Test"){
           steps{
             echo "Run Performance Test"           
+            sleep 2
           }
         }
       }      
@@ -101,18 +107,21 @@ pipeline {
     stage("Deploy to Staging"){
       steps{
         echo "Deploy to Staging"
+        sleep 3
       }
     }
 
     stage("Re-Run Automation Test"){
       steps{
         echo "Run Automation Test"
+        sleep 3
       }
     }
 
     stage("Deploy to Production"){
       steps{
         echo "Deploy to Production"
+        sleep 3
       }
     }
   }
