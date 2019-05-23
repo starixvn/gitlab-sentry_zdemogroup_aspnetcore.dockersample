@@ -58,6 +58,11 @@ pipeline {
         bat label: "Prepare folder", script: "IF NOT EXIST \"%WORKSPACE%\\SeleniumReport\" mkdir SeleniumReport"
         bat label: "RobotFramework", script: "robot --outputDir SeleniumReport tests/robot/simpletest.robot"
       }
+      post{
+        always{
+          publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'SeleniumReport', reportFiles: 'report.html', reportName: 'Selenium Report', reportTitles: ''])		
+        }
+      }
     }
   }
 
