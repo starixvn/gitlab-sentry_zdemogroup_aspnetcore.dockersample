@@ -16,16 +16,10 @@ pipeline {
         bat label: "MsBuild", script: "MsBuild AspNetCoreSample.sln /t:Rebuild /p:DebugType=Full /nologo /v:minimal /l:XmlFileLogger,\"%JENKINS_HOME%\\tools\\MSBuild.ExtensionPack.Loggers.dll\";logfile=MsBuild.xml;encoding=UTF-8"        
       }    
     }
-
+    
     stage("Test"){
       parallel{
-        stage("C# Test"){
-          steps{
-            bat label: "Generate C# Coverage", script: "powershell -file \"%JENKINS_HOME%\\tools\\Commands\\NetCoreCoverage.ps1\" \"%WORKSPACE%\""
-          }
-        }
-
-		    stage("TypeScript Test"){
+        stage("TypeScript Test"){
           steps{
             echo "Generate TS Coverage"           
           }
@@ -36,6 +30,12 @@ pipeline {
             echo "Deploy database project"
             echo "Deploy database test project"
             echo "Generate TSQL Coverage"
+          }
+        }
+
+        stage("C# Test"){
+          steps{
+            bat label: "Generate C# Coverage", script: "powershell -file \"%JENKINS_HOME%\\tools\\Commands\\NetCoreCoverage.ps1\" \"%WORKSPACE%\""
           }
         }
       }      
@@ -54,15 +54,37 @@ pipeline {
     }
 
     stage("Run Automation Test"){
-      steps{
-        bat label: "Prepare folder", script: "IF NOT EXIST \"%WORKSPACE%\\SeleniumReport\" mkdir SeleniumReport"
-        bat label: "RobotFramework", script: "robot --outputDir SeleniumReport tests/robot/simpletest.robot"
-      }
-      post{
-        always{
-          publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'SeleniumReport', reportFiles: 'report.html', reportName: 'Selenium Report', reportTitles: ''])		
+      parallel{
+        stage("Smock Test"){
+          steps{
+            bat label: "Prepare folder", script: "IF NOT EXIST \"%WORKSPACE%\\SeleniumReport\" mkdir SeleniumReport"
+            bat label: "RobotFramework", script: "robot --outputDir SeleniumReport tests/robot/simpletest.robot"
+          }
+          post{
+            always{
+              publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'SeleniumReport', reportFiles: 'report.html', reportName: 'Selenium Report', reportTitles: ''])		
+            }
+          }
         }
-      }
+
+        stage("Functional Test"){
+          steps{
+            echo "Run Functional Test"           
+          }
+        }
+
+        stage("Acceptance Test"){
+          steps{
+            echo "Generate Acceptance Test"           
+          }
+        }
+
+        stage("Performance Test"){
+          steps{
+            echo "Run Performance Test"           
+          }
+        }
+      }      
     }
   }
 
