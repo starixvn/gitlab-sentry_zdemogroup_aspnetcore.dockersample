@@ -37,6 +37,11 @@ pipeline {
           steps{
             bat label: "Generate C# Coverage", script: "powershell -file \"%JENKINS_HOME%\\tools\\Commands\\NetCoreCoverage.ps1\" \"%WORKSPACE%\""
           }
+          post{
+            always{
+              mstest failOnError: false, testResultsFile: 'TestResults/*.trx'
+            }
+          }
         }
       }      
     }
@@ -44,7 +49,7 @@ pipeline {
     stage("SonarQube Analysis"){
       steps{
         bat label: "Run analysis", script: "\"${tool 'SonarScanner for MSBuild'}\\MSBuild.SonarQube.Runner.exe\" end"
-      }     
+      }
     }
 
     stage("Deploy To Local"){
