@@ -93,7 +93,7 @@ pipeline {
       }
     }
 
-    stage("Run Automation Test"){
+    stage("Re-Run Automation Test"){
       steps{
         echo "Run Automation Test"
       }
