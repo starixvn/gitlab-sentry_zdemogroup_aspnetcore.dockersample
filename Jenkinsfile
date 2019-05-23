@@ -119,7 +119,20 @@ pipeline {
     }
 
     stage("Deploy to Production"){
-      steps{
+      input {
+        message 'Would you like to deploy to Production?'
+        ok 'Confirm'
+        submitter 'larry.tran@nexcel.vn'
+        parameters {
+          choice choices: ['Yes', 'No'], description: '', name: 'DeployProduction'
+        }
+      }
+      when{
+        expression { 
+          return DeployProduction == "Yes" 
+        }        
+      }
+      steps{        
         echo "Deploy to Production"
         sleep 3
       }
