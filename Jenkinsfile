@@ -86,6 +86,24 @@ pipeline {
         }
       }      
     }
+
+    stage("Deploy to Staging"){
+      steps{
+        echo "Deploy to Staging"
+      }
+    }
+
+    stage("Run Automation Test"){
+      steps{
+        echo "Run Automation Test"
+      }
+    }
+
+    stage("Deploy to Production"){
+      steps{
+        echo "Deploy to Production"
+      }
+    }
   }
 
   post{
