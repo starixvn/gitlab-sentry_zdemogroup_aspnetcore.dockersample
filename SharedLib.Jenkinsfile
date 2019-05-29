@@ -14,7 +14,7 @@ pipeline {
     stage('Build') {
       steps {        
         script{
-          pipelineLib.beginSonarQubeForMsBuild("AspNetCoreSample","Larry / AspNetCoreSample","/d:sonar.cs.opencover.reportsPaths=%WORKSPACE%\\CoverageReports\\*.xml /d:sonar.cs.vstest.reportsPaths=%WORKSPACE%\\TestResults\\*.trx")
+          pipelineLib.beginSonarQubeForMsBuild("AspNetCoreSample", "Larry / AspNetCoreSample", "/d:sonar.cs.opencover.reportsPaths=%WORKSPACE%\\CoverageReports\\*.xml /d:sonar.cs.vstest.reportsPaths=%WORKSPACE%\\TestResults\\*.trx")
 
           pipelineLib.restoreNuget()
 
