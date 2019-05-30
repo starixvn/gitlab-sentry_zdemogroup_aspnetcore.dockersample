@@ -44,7 +44,7 @@ pipeline {
         stage("C# Test"){
           steps{
             script{
-              pipelineLib.generateCoverageForNetCore()
+              pipelineLib.xUnitForNetCore()
             }
           }
           post{
