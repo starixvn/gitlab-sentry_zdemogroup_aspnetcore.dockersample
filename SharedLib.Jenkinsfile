@@ -137,10 +137,7 @@ pipeline {
       }
     }
   }
-  post{
-    always{
-      archiveArtifacts "*.xml"
-    }
+  post{   
     unsuccessful{
       emailext body: '$DEFAULT_CONTENT', recipientProviders: [developers(), requestor()], subject: '$DEFAULT_SUBJECT', to: 'larry.tran@starixsoft.com'
     }
