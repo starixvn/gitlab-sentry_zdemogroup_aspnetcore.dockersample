@@ -63,5 +63,13 @@ pipeline {
         }
       }
     }
+
+    stage("Deploy To Local"){
+      steps{       
+        script{
+          pipelineLib.deployByRocketor("11202","%GIT_BRANCH%","%GIT_COMMIT%","","1ced7d6b84824e49860e27ceb7f6efef")
+        }
+      }     
+    }
   }
 }
