@@ -71,5 +71,78 @@ pipeline {
         }
       }     
     }
+
+    stage("Run Automation Test"){
+      parallel{
+        stage("Smock Test"){
+          steps{
+            bat label: "Prepare folder", script: "IF NOT EXIST \"%WORKSPACE%\\SeleniumReport\" mkdir SeleniumReport"
+            bat label: "RobotFramework", script: "robot --outputDir SeleniumReport tests/robot/simpletest.robot"
+          }
+          post{
+            always{
+              publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: 'SeleniumReport', reportFiles: 'report.html', reportName: 'Selenium Report', reportTitles: ''])		
+            }
+          }
+        }
+
+        stage("Integration Test"){
+          steps{
+            echo "Run Integration Test"   
+            sleep 2        
+          }
+        }
+
+        stage("Functional Test"){
+          steps{
+            echo "Run Functional Test"           
+            sleep 2
+          }
+        }
+
+        stage("Acceptance Test"){
+          steps{
+            echo "Generate Acceptance Test"           
+            sleep 2
+          }
+        }
+
+        stage("Performance Test"){
+          steps{
+            echo "Run Performance Test"           
+            sleep 2
+          }
+        }
+      }      
+    }
+
+    stage("Deploy to Staging"){
+      steps{
+        echo "Deploy to Staging"
+        sleep 3
+      }
+    }
+
+    stage("Re-Run Automation Test"){
+      steps{
+        echo "Run Automation Test"
+        sleep 3
+      }
+    }
+
+    stage("Deploy to Production"){
+      steps{
+        echo "Deploy to Production"
+        sleep 3
+      }
+    }
+  }
+  post{
+    always{
+      archiveArtifacts "*.xml"
+    }
+    unsuccessful{
+      emailext body: '$DEFAULT_CONTENT', recipientProviders: [developers(), requestor()], subject: '$DEFAULT_SUBJECT', to: 'larry.tran@starixsoft.com'
+    }
   }
 }
