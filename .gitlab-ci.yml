@@ -11,6 +11,7 @@ stages:
 build_job:
     stage: build
     script:
+        - dotnet clean
         - dotnet build
 
 test_job:
