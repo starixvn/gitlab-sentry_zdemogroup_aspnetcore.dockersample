@@ -1,0 +1,5 @@
+before_script:
+  
+build:
+    script:
+      - dotnet build
