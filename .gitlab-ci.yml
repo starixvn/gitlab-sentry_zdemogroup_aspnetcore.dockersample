@@ -1,7 +1,21 @@
-image: "mcr.microsoft.com/dotnet/core/sdk:3.1"
+variables:   
+    TEST_FOLDER: 'Tests\bin\Release'
+    DEPLOY_FOLDER: 'P:\Projects\YourApp\Builds'    
+    NUNIT_PATH: 'C:\Program Files (x86)\NUnit.org\nunit-console\nunit3-console.exe'
 
-before_script:
-  
-build:
+stages:
+    - build
+    - test
+    - deploy
+
+build_job:
+    stage: build
     script:
-      - dotnet build
+        - dotnet build
+
+test_job:
+    stage: test    
+    script:
+        - dotnet test   
+    dependencies:
+        - build_job
