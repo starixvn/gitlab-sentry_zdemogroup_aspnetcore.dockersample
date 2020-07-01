@@ -1,7 +1,5 @@
 variables:   
-    TEST_FOLDER: 'Tests\bin\Release'
-    DEPLOY_FOLDER: 'P:\Projects\YourApp\Builds'    
-    NUNIT_PATH: 'C:\Program Files (x86)\NUnit.org\nunit-console\nunit3-console.exe'
+    COVERLET_PATH: '/home/larry/.dotnet/tools/coverlet'   
 
 stages:
     - build
@@ -17,6 +15,6 @@ Build:
 UnitTest:
     stage: test    
     script:
-        - coverlet --target dotnet --targetargs "test ""$CI_PROJECT_DIR/tests/unit/AspNetCoreSample.Tests/AspNetCoreSample.Tests.csproj"" --no-build --logger ""trx;LogFileName=$CI_PROJECT_DIR/AspNetCoreSample.Tests-UnitTest.trx""" --format opencover --output "$CI_PROJECT_DIR/AspNetCoreSample.Tests-Coverage.xml" --exclude=[xunit.*]*
+        - '& "$COVERLET_PATH" "$CI_PROJECT_DIR/tests/unit/AspNetCoreSample.Tests/bin/Debug/netcoreapp2.1/AspNetCoreSample.Tests.dll" --target dotnet --targetargs "test ""$CI_PROJECT_DIR/tests/unit/AspNetCoreSample.Tests/AspNetCoreSample.Tests.csproj"" --no-build --logger ""trx;LogFileName=$CI_PROJECT_DIR/AspNetCoreSample.Tests-UnitTest.trx""" --format opencover --output "$CI_PROJECT_DIR/AspNetCoreSample.Tests-Coverage.xml" --exclude=[xunit.*]*'
     dependencies:
         - Build
