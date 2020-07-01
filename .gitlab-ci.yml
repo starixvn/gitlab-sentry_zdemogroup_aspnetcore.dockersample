@@ -17,6 +17,6 @@ Build:
 UnitTest:
     stage: test    
     script:
-        - '& coverlet "" --target dotnet --targetargs "test """"$CI_PROJECT_DIR/tests/unit/AspNetCoreSample.Tests/AspNetCoreSample.Tests.csproj"""" --logger """"trx;LogFileName=$CI_PROJECT_DIR/AspNetCoreSample.Tests-UnitTest.trx""""" --format opencover --output "$CI_PROJECT_DIR/AspNetCoreSample.Tests-Coverage.xml" --exclude=[xunit.*]*'
+        - '& coverlet --target dotnet --targetargs "test ""$CI_PROJECT_DIR/tests/unit/AspNetCoreSample.Tests/AspNetCoreSample.Tests.csproj"" --no-build --logger ""trx;LogFileName=$CI_PROJECT_DIR/AspNetCoreSample.Tests-UnitTest.trx""" --format opencover --output "$CI_PROJECT_DIR/AspNetCoreSample.Tests-Coverage.xml" --exclude=[xunit.*]*'
     dependencies:
         - Build
