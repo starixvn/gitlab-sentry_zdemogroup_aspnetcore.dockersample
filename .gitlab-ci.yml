@@ -11,7 +11,7 @@ stages:
 Build:
     stage: build
     script:
-        - echo '$env:CI_PROJECT_DIR'
+        - echo $CI_PROJECT_DIR
         - dotnet clean
         - dotnet build
 
