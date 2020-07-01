@@ -8,15 +8,15 @@ stages:
     - test
     - deploy
 
-build_job:
+Build:
     stage: build
     script:
         - dotnet clean
         - dotnet build
 
-test_job:
+UnitTest:
     stage: test    
     script:
         - dotnet test   
     dependencies:
-        - build_job
+        - Build
