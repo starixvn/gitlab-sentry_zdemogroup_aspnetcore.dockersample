@@ -10,14 +10,13 @@ stages:
 
 Build:
     stage: build
-    script:
-        - echo $CI_PROJECT_DIR
+    script:       
         - dotnet clean
         - dotnet build
 
 UnitTest:
     stage: test    
     script:
-        - dotnet test   
+        - coverlet "" --target dotnet --targetargs "test """"$CI_PROJECT_DIR/tests/unit/AspNetCoreSample.Tests/AspNetCoreSample.Tests.csproj"""" --logger """"trx;LogFileName=$CI_PROJECT_DIR/AspNetCoreSample.Tests-UnitTest.trx""""" --format opencover --output "$CI_PROJECT_DIR/AspNetCoreSample.Tests-Coverage.xml" --exclude=[xunit.*]*
     dependencies:
         - Build
