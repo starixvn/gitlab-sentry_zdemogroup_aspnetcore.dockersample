@@ -1,20 +1,29 @@
-variables:   
-    COVERLET_PATH: '/home/larry/.dotnet/tools/coverlet'   
+variables:
 
 stages:
     - build
     - test
     - deploy
 
-Build:
+build:
     stage: build
-    script:       
+    before_script:
         - dotnet clean
+    script:       
         - dotnet build
 
-UnitTest:
-    stage: test    
+unitTest:
+    stage: test   
     script:
-        - '& "$COVERLET_PATH" "$CI_PROJECT_DIR/tests/unit/AspNetCoreSample.Tests/bin/Debug/netcoreapp2.1/AspNetCoreSample.Tests.dll" --target dotnet --targetargs "test ""$CI_PROJECT_DIR/tests/unit/AspNetCoreSample.Tests/AspNetCoreSample.Tests.csproj"" --no-build --logger ""trx;LogFileName=$CI_PROJECT_DIR/AspNetCoreSample.Tests-UnitTest.trx""" --format opencover --output "$CI_PROJECT_DIR/AspNetCoreSample.Tests-Coverage.xml" --exclude=[xunit.*]*'
+        - dotnet sonarscanner begin /k:"AspNetCoreSample" /n:"AspNet Core Sample" /v:"${CI_JOB_ID}" /d:sonar.cs.opencover.reportsPaths="${CI_PROJECT_DIR}/results/*.xml" /d:sonar.cs.vstest.reportsPaths="${CI_PROJECT_DIR}/results/*.trx"
+        - cd 'tests/unit/AspNetCoreSample.Tests'
+        - dotnet add package coverlet.msbuild
+        - cd "${CI_PROJECT_DIR}"
+        - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${CI_PROJECT_DIR}/results/" /p:Exclude=[xunit.*]* --logger "trx;LogFileName=${CI_PROJECT_DIR}/results/UnitTest.trx"
+        - dotnet sonarscanner end    
+    artifacts:
+        name: 'CoverageResult'
+        paths: 
+            - results/
     dependencies:
-        - Build
+        - build
