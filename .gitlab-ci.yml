@@ -1,4 +1,5 @@
 variables:
+    ROCKETOR_PUBLISH: "/home/gitlab-runner/Fanex.Rocketor.PublishAgent/Fanex.Rocketor.PublishAgent"
 
 stages:
     - build
@@ -7,15 +8,15 @@ stages:
 
 build:
     stage: build
-    before_script:
+    before_script:      
         - dotnet clean
     script:       
         - dotnet build
 
-unitTest:
+unit_test:
     stage: test   
     script:
-        - dotnet sonarscanner begin /k:"AspNetCoreSample" /n:"AspNet Core Sample" /v:"${CI_JOB_ID}" /d:sonar.cs.opencover.reportsPaths="${CI_PROJECT_DIR}/results/*.xml" /d:sonar.cs.vstest.reportsPaths="${CI_PROJECT_DIR}/results/*.trx"
+        - dotnet sonarscanner begin /k:"AspNetCoreSample" /n:"AspNet Core Sample" /v:"${CI_COMMIT_REF_NAME}-[${CI_JOB_ID}]" /d:sonar.cs.opencover.reportsPaths="${CI_PROJECT_DIR}/results/*.xml" /d:sonar.cs.vstest.reportsPaths="${CI_PROJECT_DIR}/results/*.trx"
         - cd 'tests/unit/AspNetCoreSample.Tests'
         - dotnet add package coverlet.msbuild
         - cd "${CI_PROJECT_DIR}"
@@ -25,5 +26,12 @@ unitTest:
         name: 'CoverageResult'
         paths: 
             - results/
-    dependencies:
-        - build
+        expire_in: 1 week    
+
+deploy_local:
+    stage: deploy
+    script:
+        - $ROCKETOR_PUBLISH --locationids=11202 --branchname="${CI_COMMIT_REF_NAME}" --commithash="${CI_COMMIT_SHA}" --workspace="${CI_PROJECT_DIR}"
+    environment:
+        name: local
+        url: https://local.example.com
