@@ -20,7 +20,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="..\..\.sonarlint\aspnetcoresample\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.0" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="7.14.0.8411">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

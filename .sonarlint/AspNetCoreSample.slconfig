@@ -1,12 +1,12 @@
 {
-  "ServerUri": "http://sonarqube-dev.nexdev.net/",
+  "ServerUri": "https://sonarqube.nexdev.net/",
   "Organization": null,
   "ProjectKey": "AspNetCoreSample",
-  "ProjectName": "Larry / AspNetCoreSample",
+  "ProjectName": "AspNet Core Sample",
   "Profiles": {
     "CSharp": {
       "ProfileKey": "cs-sonar-way-80515",
-      "ProfileTimestamp": "2018-11-21T08:59:06+07:00"
+      "ProfileTimestamp": "2019-10-01T06:55:11Z"
     }
   }
 }

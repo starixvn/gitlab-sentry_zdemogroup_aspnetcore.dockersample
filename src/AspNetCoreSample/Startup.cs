@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,8 +20,11 @@ namespace AspNetCoreSample
 
         public IConfigurationRoot Configuration { get; }
 
+
         // This method gets called by the runtime. Use this method to add services to the container.
+#pragma warning disable S2325 // Methods and properties that don't access instance data should be static
         public void ConfigureServices(IServiceCollection services)
+#pragma warning restore S2325 // Methods and properties that don't access instance data should be static
         {
             // Add framework services.
             services.AddMvc();
