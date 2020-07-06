@@ -21,15 +21,13 @@ unit_test:
         - dotnet add package coverlet.msbuild
         - cd "${CI_PROJECT_DIR}"
         - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${CI_PROJECT_DIR}/Reports/" /p:Exclude=[xunit.*]* --logger "trx;LogFileName=${CI_PROJECT_DIR}/Reports/UnitTest.trx"
-        - reportgenerator -reports:"${CI_PROJECT_DIR}/Reports/coverage.opencover.xml" -targetdir:"${CI_PROJECT_DIR}/Reports/Coverage" -reportTypes:"TextSummary;Html"
-        - dotnet sonarscanner end
-        - cat "${CI_PROJECT_DIR}/Reports/Coverage/Summary.txt"
-    coverage: /^\s*Line coverage:\s*\d+.\d+\%$/
+        - reportgenerator -reports:"${CI_PROJECT_DIR}/Reports/coverage.opencover.xml" -targetdir:"${CI_PROJECT_DIR}/Reports/Coverage" -reportTypes:"Cobertura"
+        - dotnet sonarscanner end        
     artifacts:
         when: always
         paths:
           - Reports/Coverage
-        expire_in: 1 week    
+        expire_in: 1 week        
 
 deploy_local:
     stage: deploy
