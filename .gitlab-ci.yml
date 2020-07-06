@@ -20,26 +20,14 @@ unit_test:
         - cd 'tests/unit/AspNetCoreSample.Tests'
         - dotnet add package coverlet.msbuild
         - cd "${CI_PROJECT_DIR}"
-        - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${CI_PROJECT_DIR}/Reports/" /p:Exclude=[xunit.*]* --logger "trx;LogFileName=${CI_PROJECT_DIR}/Reports/UnitTest.trx"
-        - reportgenerator -reports:"${CI_PROJECT_DIR}/Reports/coverage.opencover.xml" -targetdir:"${CI_PROJECT_DIR}/Reports/Coverage" -reportTypes:"Html"
+        - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${CI_PROJECT_DIR}/Reports/" /p:Exclude=[xunit.*]* --logger "trx;LogFileName=${CI_PROJECT_DIR}/Reports/UnitTest.trx"       
         - dotnet sonarscanner end        
     artifacts:
         when: always
         paths:
-          - Reports/Coverage
+          - Reports/
         expire_in: 1 week
-        
-pages:
-    stage: deploy
-    dependencies:
-        - unit_test
-    script:
-        - mv Reports/Coverage/ public/
-    artifacts:
-        paths:
-        - public
-        expire_in: 1 week
-
+    
 deploy_local:
     stage: deploy
     script:
@@ -47,4 +35,18 @@ deploy_local:
     environment:
         name: local
         url: https://local.example.com
+    dependencies: []
+
+automation_test:
+    stage: test   
+    script:
+        - echo "Automation test"
+        
+deploy_uat:
+    stage: deploy
+    script:
+        - echo "Deploy to UAT"
+    environment:
+        name: UAT
+        url: https://uat.example.com
     dependencies: []
