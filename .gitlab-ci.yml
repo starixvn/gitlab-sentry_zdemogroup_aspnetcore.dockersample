@@ -16,16 +16,19 @@ build:
 unit_test:
     stage: test   
     script:
-        - dotnet sonarscanner begin /k:"AspNetCoreSample" /n:"AspNet Core Sample" /v:"${CI_COMMIT_REF_NAME}-[${CI_JOB_ID}]" /d:sonar.cs.opencover.reportsPaths="${CI_PROJECT_DIR}/results/*.xml" /d:sonar.cs.vstest.reportsPaths="${CI_PROJECT_DIR}/results/*.trx"
+        - dotnet sonarscanner begin /k:"AspNetCoreSample" /n:"AspNet Core Sample" /v:"${CI_COMMIT_REF_NAME}-[${CI_JOB_ID}]" /d:sonar.cs.opencover.reportsPaths="${CI_PROJECT_DIR}/Reports/*.xml" /d:sonar.cs.vstest.reportsPaths="${CI_PROJECT_DIR}/Reports/*.trx"
         - cd 'tests/unit/AspNetCoreSample.Tests'
         - dotnet add package coverlet.msbuild
         - cd "${CI_PROJECT_DIR}"
-        - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${CI_PROJECT_DIR}/results/" /p:Exclude=[xunit.*]* --logger "trx;LogFileName=${CI_PROJECT_DIR}/results/UnitTest.trx"
-        - dotnet sonarscanner end    
+        - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${CI_PROJECT_DIR}/Reports/" /p:Exclude=[xunit.*]* --logger "trx;LogFileName=${CI_PROJECT_DIR}/Reports/UnitTest.trx"
+        - reportgenerator -reports:"${CI_PROJECT_DIR}/Reports/coverage.opencover.xml" -targetdir:"${CI_PROJECT_DIR}/Reports/Coverage" -reportTypes:"TextSummary;Html"
+        - dotnet sonarscanner end
+        - cat "${CI_PROJECT_DIR}/Reports/Coverage/Summary.txt"
+    coverage: /^\s*Line coverage:\s*\d+.\d+\%$/
     artifacts:
-        name: 'CoverageResult'
-        paths: 
-            - results/
+        when: always
+        paths:
+          - Reports/Coverage
         expire_in: 1 week    
 
 deploy_local:
@@ -35,3 +38,4 @@ deploy_local:
     environment:
         name: local
         url: https://local.example.com
+    dependencies: []
