@@ -36,17 +36,3 @@ deploy_local:
         name: local
         url: https://local.example.com
     dependencies: []
-
-automation_test:
-    stage: test   
-    script:
-        - echo "Automation test"
-        
-deploy_uat:
-    stage: deploy
-    script:
-        - echo "Deploy to UAT"
-    environment:
-        name: UAT
-        url: https://uat.example.com
-    dependencies: []
