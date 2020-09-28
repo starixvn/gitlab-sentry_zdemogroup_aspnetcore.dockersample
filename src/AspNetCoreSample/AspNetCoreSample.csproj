@@ -20,7 +20,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Deployment.ignore" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AdditionalFiles Include="..\..\.sonarlint\aspnetcoresample\CSharp\SonarLint.xml" Link="SonarLint.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Deployment.ignore" />
   </ItemGroup>
 
   <ItemGroup>
