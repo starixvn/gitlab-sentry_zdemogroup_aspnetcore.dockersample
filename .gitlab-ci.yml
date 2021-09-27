@@ -1,0 +1,4 @@
+include:
+    - project: "ci/repos-ci/nexops_sample_website1"
+      ref: master
+      file: "gitlab-ci.yml"
