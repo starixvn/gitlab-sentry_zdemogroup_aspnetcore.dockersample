@@ -2,6 +2,7 @@ FROM registry.nexdev.net:5050/docker/dotnet/core/sdk:5.0.102-ca-patch-buster-sli
 WORKDIR /src
 
 COPY *.sln .
+COPY WebSite1/*.csproj ./WebSite1/
 COPY WebSite2/*.csproj ./WebSite2/
 RUN dotnet nuget add source http://nuget.nexdev.net/api/v2
 RUN dotnet restore -v n
