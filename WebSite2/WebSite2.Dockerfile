@@ -1,13 +1,14 @@
 FROM registry.nexdev.net:5050/docker/dotnet/core/sdk:5.0.102-ca-patch-buster-slim AS builder
 WORKDIR /src
 
-COPY . ./WebSite2
-
-WORKDIR /src/WebSite2
+COPY *.sln .
+COPY WebSite2/*.csproj ./WebSite2/
 RUN dotnet nuget add source http://nuget.nexdev.net/api/v2
 RUN dotnet restore -v n
 
-RUN dotnet publish -r linux-x64 --self-contained false -o /app 
+COPY WebSite2/. ./WebSite2/
+WORKDIR /src/WebSite2
+RUN dotnet publish -r linux-x64 --self-contained false -o /app
 
 FROM registry.nexdev.net:5050/docker/dotnet/core/aspnet:5.0-buster-slim AS base
 
