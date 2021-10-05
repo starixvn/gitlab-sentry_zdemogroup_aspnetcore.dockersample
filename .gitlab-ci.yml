@@ -6,3 +6,7 @@ include:
     - project: "ci/repos-ci/nexops_sample_website2"
       ref: master
       file: "gitlab-ci-mixing.yml"
+    
+    - project: "ci/repos-ci/nexops_sample_website3"
+      ref: master
+      file: "gitlab-ci-mixing.yml"
