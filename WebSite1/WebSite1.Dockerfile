@@ -1,6 +1,11 @@
 FROM registry.nexdev.net:5050/docker/dotnet/core/sdk:5.0.102-ca-patch-buster-slim AS builder
 WORKDIR /src
 
+# Install the tools
+RUN dotnet tool install --tool-path /tools dotnet-trace
+RUN dotnet tool install --tool-path /tools dotnet-dump
+RUN dotnet tool install --tool-path /tools dotnet-counters
+
 COPY *.sln .
 COPY WebSite1/*.csproj ./WebSite1/
 COPY WebSite2/*.csproj ./WebSite2/
@@ -20,6 +25,7 @@ RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /usr/lib/ssl/openssl.
 
 WORKDIR /app
 COPY --from=builder /app .
+COPY --from=builder /tools /tools
 ENV TZ="America/La_Paz"
 
 ENTRYPOINT ["dotnet", "WebSite1.dll"]
