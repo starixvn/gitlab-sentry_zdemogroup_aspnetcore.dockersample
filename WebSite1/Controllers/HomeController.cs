@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Fanex.Logging;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,8 @@ namespace WebSite1.Controllers
 
         public IActionResult Index()
         {
+            LogService.Info("You are home page");
+
             return View();
         }
 

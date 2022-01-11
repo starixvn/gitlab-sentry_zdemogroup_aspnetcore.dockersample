@@ -1,9 +1,12 @@
+using Fanex.Logging;
+using Fanex.Logging.Sentry;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,6 +55,17 @@ namespace WebSite1
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
+            LogManager
+                 .SetDefaultLogCategory(appSettings.SentryEnvironment)
+                 .Use(new List<ILogEngine>
+                 {
+                     new SentryLogging(new SentryEngineOptions {
+                        Dsn = new Dsn(appSettings.SentryDsn),
+                        Environment = appSettings.SentryEnvironment
+                     })
+                 });
         }
     }
 }
