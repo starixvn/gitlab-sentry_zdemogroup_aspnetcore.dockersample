@@ -21,8 +21,6 @@ namespace WebSite1.Controllers
 
         public IActionResult Index()
         {
-            LogService.Info("You are home page");
-
             return View();
         }
 
@@ -35,6 +33,16 @@ namespace WebSite1.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public void LogInfo()
+        {
+            LogService.Info("This is a information log");
+        }
+
+        public void LogError()
+        {
+            LogService.Error("This is a ERROR log");
         }
     }
 }
