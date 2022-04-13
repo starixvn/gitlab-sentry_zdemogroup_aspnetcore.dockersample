@@ -1,0 +1,7 @@
+
+<?xml version="1.0" encoding="utf-8" ?>
+<Functions>
+  <Function Name="Admin">
+    <Setting Key="Site_Insert" SpName="Site_Insert" DbName="NexOps.Up_DeploymentTest.abc" Plain="0" />    
+  </Function>  
+</Functions>
