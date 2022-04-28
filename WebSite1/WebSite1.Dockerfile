@@ -17,7 +17,8 @@ COPY WebSite1/. ./WebSite1/
 WORKDIR /src/WebSite1
 RUN dotnet publish -r linux-x64 --self-contained false -o /app
 
-FROM registry.nexdev.net:5050/docker/dotnet/core/aspnet:5.0-buster-slim AS base
+FROM registry.nexdev.net:5050/docker/dotnet/core/aspnet:5.0-alpine-amd64 AS base
+#5.0-buster-slim
 
 RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /etc/ssl/openssl.cnf
 RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /etc/ssl/openssl.cnf
