@@ -32,6 +32,7 @@ RUN adduser --disabled-password \
 
 # impersonate into the new user
 USER dotnetuser
+RUN apt-get install curl telnet -y
 #
 COPY --from=builder /app .
 COPY --from=builder /tools /tools
