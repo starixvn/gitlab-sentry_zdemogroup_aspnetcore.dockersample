@@ -19,8 +19,8 @@ RUN dotnet publish -r linux-x64 --self-contained false -o /app
 
 FROM registry.nexdev.net:5050/docker/dotnet/core/aspnet:5.0-buster-slim-new AS base
 #5.0-buster-slim 5.0-alpine-amd64
-RUN apt-get update
-RUN apt-get install curl -y
+#RUN apt-get update
+RUN apt-get install curl telnet -y
 RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /etc/ssl/openssl.cnf
 RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /etc/ssl/openssl.cnf
 RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /usr/lib/ssl/openssl.cnf
