@@ -1,5 +1,5 @@
 include:
-    - project: "ci/repos-ci/nexops_sample_website1"
+    - project: "ci/repos-ci/nexops_sample_cocos_service" #"ci/repos-ci/nexops_sample_website1"
       ref: master
       file: "gitlab-ci.yml"
 
