@@ -20,5 +20,6 @@
         <Setting Key="SpecialDelete_MailingList_Select" SpName="SpecialDelete_MailingList_Select" DbName="DBOIC.bodb_OIC.bodbAdminNet" TimeOut="600" />
         <Setting Key="TicketVoiding_VoidBetAutomation_Service_SelectAll" SpName="TicketVoiding_VoidBetAutomation_Service_SelectAll" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
         <Setting Key="TicketVoiding_VoidBetAutomation_Service_Upd" SpName="TicketVoiding_VoidBetAutomation_Service_Upd" DbName="DBTXN.bodb02.bodbAdminNet" TimeOut="600" />
+        <Setting Key="Odds_BetTypeSel" SpName="Odds_BetTypeSel" DbName="DBODDSFEED.bodb_OddsFeed.bodbAdminNet" TimeOut="600" />
     </Function>
 </Functions>
