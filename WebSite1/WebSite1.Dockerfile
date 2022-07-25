@@ -27,7 +27,7 @@ USER dotnetuser
 #
 WORKDIR /app
 COPY --from=builder /app .
-COPY --from=builder /tools /tools
+
 ENV TZ="America/La_Paz"
 
 ENTRYPOINT ["dotnet", "WebSite1.dll"]
