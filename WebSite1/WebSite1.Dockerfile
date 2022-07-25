@@ -1,10 +1,5 @@
-FROM registry.nexdev.net:5050/docker/dotnet/core/sdk:5.0.102-ca-patch-buster-slim AS builder
+FROM registry.nexdev.net:505000/docker/dotnet/core/sdk:5.0.102-ca-patch-buster-slim AS builder
 WORKDIR /src
-
-# Install the tools
-RUN dotnet tool install --tool-path /tools dotnet-trace
-RUN dotnet tool install --tool-path /tools dotnet-dump
-RUN dotnet tool install --tool-path /tools dotnet-counters
 
 COPY *.sln .
 COPY WebSite1/*.csproj ./WebSite1/
