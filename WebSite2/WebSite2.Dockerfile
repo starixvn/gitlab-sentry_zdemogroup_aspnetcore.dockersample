@@ -4,6 +4,7 @@ WORKDIR /src
 COPY *.sln .
 COPY WebSite1/*.csproj ./WebSite1/
 COPY WebSite2/*.csproj ./WebSite2/
+COPY tests/Website1.Tests/*.csproj ./tests/Website1.Tests/
 
 RUN dotnet nuget add source http://nuget.nexdev.net/api/v2
 RUN dotnet restore -v n
