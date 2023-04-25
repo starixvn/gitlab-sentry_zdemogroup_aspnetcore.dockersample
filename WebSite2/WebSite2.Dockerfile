@@ -13,7 +13,7 @@ RUN dotnet nuget add source http://nuget.nexdev.net/api/v2
 COPY CommonLibs/. ./CommonLibs/
 COPY WebSite2/. ./WebSite2/
 WORKDIR /src/WebSite2
-RUN dotnet publish -r linux-x64 --self-contained false -o /app
+RUN dotnet publish -v n -r linux-x64 --self-contained false -o /app
 
 FROM hub.nexdev.net/base/dotnet/core/aspnet:5.0-buster-slim AS base
 
