@@ -3,14 +3,12 @@ WORKDIR /src
 
 COPY *.sln .
 COPY WebSite1/*.csproj ./WebSite1/
-COPY WebSite2/*.csproj ./WebSite2/
-COPY tests/Website1.Tests/*.csproj ./tests/Website1.Tests/
+
 RUN dotnet nuget add source http://nuget.nexdev.net/api/v2
-RUN dotnet restore -v n
 
 COPY WebSite1/. ./WebSite1/
 WORKDIR /src/WebSite1
-RUN dotnet publish -r linux-x64 --self-contained false -o /app
+RUN dotnet publish -v m -r linux-x64 --self-contained false -o /app
 
 FROM hub.nexdev.net/base/dotnet/core/aspnet:5.0-buster-slim AS base
 
