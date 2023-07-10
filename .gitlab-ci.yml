@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: ignore-ssl
+    ref: main
     file: nexcel.gitlab-ci.yml
