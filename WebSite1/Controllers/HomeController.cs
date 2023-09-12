@@ -1,4 +1,4 @@
-﻿using Fanex.Logging;
+using Fanex.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -43,6 +43,11 @@ namespace WebSite1.Controllers
         public void LogError()
         {
             LogService.Error("This is a ERROR log");
+        }
+
+        public void LogWarning()
+        {
+            LogService.Warning("This is a Warning log");
         }
     }
 }
