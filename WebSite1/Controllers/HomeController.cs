@@ -47,7 +47,7 @@ namespace WebSite1.Controllers
 
         public void LogWarning()
         {
-            LogService.Warning("This is a Warning log");
+            LogService.Warn("This is a Warning log");
         }
     }
 }
