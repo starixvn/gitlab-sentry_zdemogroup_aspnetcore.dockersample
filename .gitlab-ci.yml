@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: main
+    ref: test-sonar10
     file: nexcel.gitlab-ci.yml
