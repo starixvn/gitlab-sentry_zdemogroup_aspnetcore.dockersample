@@ -25,5 +25,13 @@ namespace Website1.Tests
 
             Assert.IsType<ViewResult>(view);
         }
+
+        [Fact]
+        public void Privacy_NoParams_ReturnViewResult()
+        {
+            var view = controller.Privacy();
+
+            Assert.IsType<ViewResult>(view);
+        }
     }
 }
