@@ -5,11 +5,11 @@ COPY *.sln .
 COPY WebSite1/*.csproj ./WebSite1/
 
 RUN dotnet nuget add source https://nuget.nexdev.net/api/v2
-RUN dotnet restore ./WebSite1/WebSite1.csproj
+RUN dotnet restore -v n ./WebSite1/WebSite1.csproj
 
 COPY WebSite1/. ./WebSite1/
 WORKDIR /src/WebSite1
-RUN dotnet publish -v m -r linux-x64 --self-contained false -o /app
+RUN dotnet publish -v n -r linux-x64 --self-contained false -o /app
 
 FROM hub.nexdev.net/base/dotnet/core/aspnet:5.0-buster-slim AS base
 
