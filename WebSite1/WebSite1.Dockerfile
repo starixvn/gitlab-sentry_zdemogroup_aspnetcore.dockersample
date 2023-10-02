@@ -5,18 +5,18 @@ COPY *.sln .
 COPY WebSite1/*.csproj ./WebSite1/
 
 RUN dotnet nuget add source https://nuget.nexdev.net/api/v2
-RUN dotnet restore -v n ./WebSite1/WebSite1.csproj
+
+RUN --mount=type=cache,target=/root/.nuget/packages \
+	dotnet restore -v n ./WebSite1/WebSite1.csproj
 
 COPY WebSite1/. ./WebSite1/
 WORKDIR /src/WebSite1
-RUN dotnet publish -v n -r linux-x64 --self-contained false -o /app
 
-FROM hub.nexdev.net/base/dotnet/core/aspnet:5.0-buster-slim AS base
+RUN --mount=type=cache,target=/root/.nuget/packages \
+  dotnet publish -v m -r linux-x64 --self-contained false -o /app
 
-RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /etc/ssl/openssl.cnf
-RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /etc/ssl/openssl.cnf
-RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /usr/lib/ssl/openssl.cnf
-RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /usr/lib/ssl/openssl.cnf
+FROM hub.nexdev.net/base/dotnet/core/aspnet:5.0-alpine AS base
+
 # impersonate into the new user
 RUN adduser --disabled-password \
   --home /app \

@@ -1,22 +1,34 @@
 FROM hub.nexdev.net/base/dotnet/core/sdk:5.0.102-ca-patch-buster-slim AS builder
 WORKDIR /src
 
-RUN dotnet nuget add source http://nuget.nexdev.net/api/v2
+COPY *.sln .
+COPY WebSite2/*.csproj ./WebSite2/
+COPY CommonLibs/*.csproj ./CommonLibs/
+
+RUN dotnet nuget add source https://nuget.nexdev.net/api/v2
+
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    dotnet restore -v n ./WebSite2/WebSite2.csproj
 
 COPY CommonLibs/. ./CommonLibs/
 COPY WebSite2/. ./WebSite2/
 WORKDIR /src/WebSite2
-RUN dotnet publish -v m -r linux-x64 --self-contained false -o /app
 
-FROM hub.nexdev.net/base/dotnet/core/aspnet:5.0-buster-slim AS base
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    dotnet publish -v m -r linux-x64 --self-contained false -o /app
 
-RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /etc/ssl/openssl.cnf
-RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /etc/ssl/openssl.cnf
-RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /usr/lib/ssl/openssl.cnf
-RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /usr/lib/ssl/openssl.cnf
+FROM hub.nexdev.net/base/dotnet/core/aspnet:5.0-alpine AS base
 
+# impersonate into the new user
+RUN adduser --disabled-password \
+    --home /app \
+    --gecos '' dotnetuser && chown -R dotnetuser /app
+
+USER dotnetuser
+#
 WORKDIR /app
 COPY --from=builder /app .
+
 ENV TZ="America/La_Paz"
 
 ENTRYPOINT ["dotnet", "WebSite2.dll"]
