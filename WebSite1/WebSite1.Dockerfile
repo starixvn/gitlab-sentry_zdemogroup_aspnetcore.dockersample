@@ -5,6 +5,7 @@ COPY *.sln .
 COPY WebSite1/*.csproj ./WebSite1/
 
 RUN dotnet nuget add source https://nuget.nexdev.net/api/v2
+RUN dotnet restore ./WebSite1/WebSite1.csproj
 
 COPY WebSite1/. ./WebSite1/
 WORKDIR /src/WebSite1
