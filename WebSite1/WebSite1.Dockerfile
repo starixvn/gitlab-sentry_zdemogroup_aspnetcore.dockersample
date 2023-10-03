@@ -13,7 +13,7 @@ COPY WebSite1/. ./WebSite1/
 WORKDIR /src/WebSite1
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
-  dotnet publish -v m -r linux-x64 --self-contained false -o /app
+  dotnet publish -v n -r linux-x64 --self-contained false -o /app
 
 FROM hub.nexdev.net/base/dotnet/core/aspnet:5.0-alpine AS base
 
