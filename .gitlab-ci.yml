@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: docker-buildx
+    ref: main
     file: nexcel.gitlab-ci.yml
