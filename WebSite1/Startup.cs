@@ -45,6 +45,8 @@ namespace WebSite1
 
             app.UseAuthorization();
 
+            app.UseSentryTracing();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
