@@ -1,6 +1,6 @@
-using Fanex.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Sentry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,17 +37,17 @@ namespace WebSite1.Controllers
 
         public void LogInfo()
         {
-            LogService.Info("This is a information log");
+            SentrySdk.CaptureMessage("This is a information log");
         }
 
         public void LogError()
         {
-            LogService.Error("This is a ERROR log");
+            SentrySdk.CaptureMessage("This is a ERROR log", SentryLevel.Error);
         }
 
         public void LogWarning()
         {
-            LogService.Warn("This is a Warning log");
+            SentrySdk.CaptureMessage("This is a Warning log", SentryLevel.Warning);
         }
     }
 }
