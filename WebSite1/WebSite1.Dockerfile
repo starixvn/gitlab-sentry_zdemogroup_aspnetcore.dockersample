@@ -1,6 +1,6 @@
 FROM hub.nexdev.net/base/dotnet/core/sdk:5.0.102-ca-patch-buster-slim AS builder
 
-ENV NUGET_PACKAGES=/src/packages
+ENV SRC_PACKAGES=/src/packages
 
 WORKDIR /src
 
@@ -9,12 +9,18 @@ COPY WebSite1/*.csproj ./WebSite1/
 
 RUN dotnet nuget add source https://nuget.nexdev.net/api/v2
 
-RUN --mount=type=cache,target=$NUGET_PACKAGES dotnet restore -v n -r linux-x64 ./WebSite1/WebSite1.csproj
+RUN mkdir -p $SRC_PACKAGES
+
+RUN --mount=type=cache,target=/root/.nuget/packages \
+  cp -arf $SRC_PACKAGES/. /root/.nuget/packages/ \
+  && dotnet restore -v n -r linux-x64 ./WebSite1/WebSite1.csproj \
+  && rm -rf SRC_PACKAGES/* \
+  && cp -arf /root/.nuget/packages/. $SRC_PACKAGES/
 
 COPY WebSite1/. ./WebSite1/
 WORKDIR /src/WebSite1
 
-RUN --mount=type=cache,target=$NUGET_PACKAGES dotnet publish -v n -r linux-x64 --self-contained false -o /app
+RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish -v n -r linux-x64 --self-contained false -o /app
 
 #ENTRYPOINT ["tail", "-f", "/dev/null"]
 
