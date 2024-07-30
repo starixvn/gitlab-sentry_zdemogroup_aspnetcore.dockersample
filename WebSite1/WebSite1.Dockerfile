@@ -1,6 +1,6 @@
 ARG CI_REGISTRY_IMAGE
 
-FROM $CI_REGISTRY_IMAGE:builder as dependencies
+FROM $CI_REGISTRY_IMAGE:builder as deps
 
 RUN mkdir -p /src/packages
 
@@ -8,7 +8,7 @@ FROM hub.nexdev.net/base/dotnet/core/sdk:5.0.102-ca-patch-buster-slim AS builder
 
 ENV NUGET_PACKAGES=/src/packages
 
-COPY --from=dependencies $NUGET_PACKAGES/. $NUGET_PACKAGES/
+COPY --from=deps $NUGET_PACKAGES/. $NUGET_PACKAGES/
 
 WORKDIR /src
 
