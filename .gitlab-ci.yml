@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: main
+    ref: 44b57fcd4720f6dc641cc030450fd39c9ab54ac3
     file: nexcel.gitlab-ci.yml
