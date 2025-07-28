@@ -37,8 +37,10 @@ namespace WebSite1
             // store random number to data folder
             var random = new Random();
             var number = random.Next(1, 100);
+            Console.WriteLine($"Random number: {number}");
             if (!Directory.Exists("data")) Directory.CreateDirectory("data");
-            File.WriteAllText("data/number.txt", number.ToString());
+            // append number to data/number.txt
+            File.AppendAllText("data/number.txt", number.ToString() + Environment.NewLine);
 
             if (env.IsDevelopment())
             {
