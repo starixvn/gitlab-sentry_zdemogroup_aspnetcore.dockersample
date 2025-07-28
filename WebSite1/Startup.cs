@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Sentry;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -32,6 +33,13 @@ namespace WebSite1
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+            // store random number to data folder
+            var random = new Random();
+            var number = random.Next(1, 100);
+            if (!Directory.Exists("data")) Directory.CreateDirectory("data");
+            File.WriteAllText("data/number.txt", number.ToString());
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
