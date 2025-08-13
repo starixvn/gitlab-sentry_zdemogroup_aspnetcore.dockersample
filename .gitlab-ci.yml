@@ -2,4 +2,3 @@ include:
   - project: ci/core-cicd
     ref: standardize_cicd 
     file: nexcel.gitlab-ci.yml
-
