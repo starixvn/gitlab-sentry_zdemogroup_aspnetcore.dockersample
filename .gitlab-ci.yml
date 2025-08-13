@@ -1,5 +1,5 @@
 include:
   - project: ci/core-cicd
-    ref: standardize_cicd 
+    ref: owen.dang-defectdojo 
     file: nexcel.gitlab-ci.yml
 
