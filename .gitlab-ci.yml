@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: test-standard
+    ref: standardardize_cicd
     file: nexcel.gitlab-ci.yml
