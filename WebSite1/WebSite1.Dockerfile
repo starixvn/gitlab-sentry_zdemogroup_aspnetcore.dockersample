@@ -15,7 +15,7 @@ WORKDIR /src/WebSite1
 RUN --mount=type=cache,target=/root/.nuget/packages \
   dotnet publish -v n -r linux-x64 --self-contained false -o /app
 
-FROM hub.nexdev.net/base/dotnet/core/aspnet:8.0-alpine AS base
+FROM hub.nexdev.net/base/dotnet/core/aspnet:2.2 AS base
 
 # impersonate into the new user
 RUN adduser --disabled-password \
