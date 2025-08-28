@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: owen.dang-main
+    ref: defectdojo_report
     file: nexcel.gitlab-ci.yml
