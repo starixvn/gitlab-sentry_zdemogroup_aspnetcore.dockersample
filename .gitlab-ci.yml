@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: defectdojo_report
+    ref: dast-test
     file: nexcel.gitlab-ci.yml
