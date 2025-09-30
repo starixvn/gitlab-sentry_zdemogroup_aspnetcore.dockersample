@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: main
+    ref: merge_request_pipeline
     file: nexcel.gitlab-ci.yml
