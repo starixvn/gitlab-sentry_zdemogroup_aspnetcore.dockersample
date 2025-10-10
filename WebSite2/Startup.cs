@@ -49,6 +49,17 @@ namespace WebSite2
             });
 
             app.UseHttpsRedirection();
+
+            // CSP header middleware (đặt trước UseStaticFiles để áp dụng cho cả static files)
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers["Content-Security-Policy"] =
+                    "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https: ws:; font-src 'self' data:";
+                // Nếu muốn chế độ report-only trong giai đoạn test, dùng header dưới và bỏ header chính ở trên:
+                // context.Response.Headers["Content-Security-Policy-Report-Only"] = "default-src 'self'";
+                await next();
+            });
+
             app.UseStaticFiles();
 
             app.UseRouting();
