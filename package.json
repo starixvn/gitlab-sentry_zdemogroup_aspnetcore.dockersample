@@ -1,0 +1,37 @@
+{
+  "name": "betgenius-automation",
+  "version": "1.0.0",
+  "description": "Automated Betgenius data download script",
+  "main": "betgenius_automation.js",
+  "scripts": {
+    "start": "node betgenius_automation.js",
+    "advanced": "node betgenius_advanced.js",
+    "final": "node betgenius_final.js",
+    "time-filter": "node betgenius_time_filter.js",
+    "filter": "node betgenius_filter_selector.js",
+    "correct": "node betgenius_correct_selection.js",
+    "week": "node betgenius_week_selector.js",
+    "slider": "node betgenius_slider_correct.js",
+    "click": "node betgenius_click_slider.js",
+    "timeline": "node betgenius_direct_timeline.js",
+    "debug": "node betgenius_debug_timeline.js",
+    "days": "node betgenius_click_day_labels.js",
+    "simple": "node betgenius_simple_slider.js",
+    "rule": "node betgenius_correct_rule.js",
+    "find-mon": "node find_mon_component.js",
+    "mon-selector": "node find_mon_selector.js",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "install-browser": "npx playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  },
+  "keywords": ["automation", "betgenius", "playwright"],
+  "author": "",
+  "license": "MIT"
+}
