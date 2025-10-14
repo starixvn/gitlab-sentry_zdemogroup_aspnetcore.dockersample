@@ -14,11 +14,12 @@ This script automates the login and data download process from Betgenius Data Se
   - Friday: Download to Monday (4 days)
   - Saturday: Download to Wednesday (5 days)
   - Sunday: Download to Thursday (4 days)
+- **Automatic CSV processing**: Adds a 'Sports' column (B欄) with 'Soccer' value after download (using Node.js)
 
 ## Setup
 
 1. Install Node.js (if not already installed)
-2. Install dependencies:
+2. Install Node.js dependencies:
    ```bash
    npm install
    ```
@@ -29,51 +30,42 @@ This script automates the login and data download process from Betgenius Data Se
 
 ## Usage
 
-### Basic Script
-Run the basic automation script:
+### Playwright Test (Recommended)
+Run the Playwright test with automatic CSV processing:
 ```bash
-npm start
+npm test
 ```
 
-Or directly with Node.js:
+Or with UI mode for debugging:
 ```bash
-node betgenius_automation.js
+npm run test:ui
 ```
 
-### Advanced Script
-Run the advanced automation script with better debugging and error handling:
+Or with visible browser:
 ```bash
-npm run advanced
+npm run test:headed
 ```
 
-Or directly with Node.js:
+The Playwright test will:
+1. Login to Betgenius
+2. Navigate to Soccer section
+3. Set date range based on current day
+4. Download CSV file to `C:\BG\BG-{date}sc.csv`
+5. **Automatically process the CSV to add 'Sports' column (B欄) with 'Soccer' value**
+
+**Note:** Test reports, screenshots, and videos are disabled to keep the workspace clean.
+
+### Manual CSV Processing
+If you want to manually process a CSV file:
 ```bash
-node betgenius_advanced.js
+npm run process-csv
+```
+or
+```bash
+node process_csv.js
 ```
 
-The advanced script provides:
-- Better error handling and debugging
-- Multiple selector strategies for finding elements
-- Screenshots at each step for troubleshooting
-- More detailed logging
-- Fallback strategies for clicking elements
-
-### Final Script (Recommended)
-Run the final optimized automation script:
-```bash
-npm run final
-```
-
-Or directly with Node.js:
-```bash
-node betgenius_final.js
-```
-
-The final script provides:
-- Streamlined automation process
-- Automatic file naming with timestamps
-- Optimized for daily use
-- Clean output and logging
+This will find and process the latest CSV file in `C:\BG\` directory.
 
 ## Configuration
 
@@ -83,7 +75,10 @@ The script uses the following credentials:
 
 ## Downloads
 
-Downloaded files will be saved to the `downloads` folder in the project directory.
+Downloaded files will be saved to `C:\BG\` directory with the naming format: `BG-{DD-MM-YYYY}sc.csv`
+
+The CSV file will be automatically processed to add:
+- Column B (Sports): Contains 'Soccer' value for all rows
 
 ## Troubleshooting
 

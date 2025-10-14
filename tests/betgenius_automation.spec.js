@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
+const { processCsvFile } = require('../process_csv.js');
 
 test.describe('Betgenius Automation', () => {
   test('Login and download soccer data', async ({ page }) => {
@@ -301,6 +302,16 @@ test.describe('Betgenius Automation', () => {
             // Save the downloaded file to the target path
             await download.saveAs(targetPath);
             console.log(`File saved successfully to: ${targetPath}`);
+            
+            // Process CSV with Node.js
+            try {
+                console.log('Processing CSV file...');
+                await processCsvFile(targetPath);
+                console.log('✓ CSV processing completed successfully!');
+            } catch (csvError) {
+                console.error('⚠ CSV processing failed:', csvError.message);
+                console.log('Note: You can manually process the CSV by running: node process_csv.js');
+            }
             
         } catch (exportError) {
             console.log('CSV export or download failed:', exportError.message);
