@@ -2,12 +2,14 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Process CSV file and add a 'Sports' column with 'Soccer' value
+ * Process CSV file and add a 'Sports' column with the specified sport value
  * This method preserves the original format by directly manipulating text
  * @param {string} filePath - Path to the CSV file to process
+ * @param {string} sportValue - The sport value to insert (default: 'Soccer')
+ * @param {boolean} addFutsalSuffix - If true, add "Futsal" to Competition column if missing (default: false)
  * @returns {Promise<void>}
  */
-async function processCsvFile(filePath) {
+async function processCsvFile(filePath, sportValue = 'Soccer', addFutsalSuffix = false) {
     console.log(`Processing file: ${filePath}`);
     
     if (!fs.existsSync(filePath)) {
@@ -53,21 +55,42 @@ async function processCsvFile(filePath) {
             continue;
         }
         
-        // Insert 'Sports' or 'Soccer' after the first column
-        const firstColumn = line.substring(0, firstCommaIndex);
+        // Get the first column
+        let firstColumn = line.substring(0, firstCommaIndex);
         const restOfLine = line.substring(firstCommaIndex);
+        
+        // Special handling for Futsal: Add "Futsal" to Competition if missing
+        if (i > 0 && addFutsalSuffix) {
+            // Remove quotes if present for checking
+            const trimmedColumn = firstColumn.replace(/^"/, '').replace(/"$/, '');
+            
+            // Check if it doesn't already end with "Futsal"
+            if (!trimmedColumn.endsWith('Futsal')) {
+                // Check if column has quotes
+                if (firstColumn.startsWith('"') && firstColumn.endsWith('"')) {
+                    // Remove trailing quote, add Futsal, add quote back
+                    firstColumn = firstColumn.slice(0, -1) + ' Futsal"';
+                } else {
+                    // No quotes, just add Futsal
+                    firstColumn = firstColumn + ' Futsal';
+                }
+            }
+        }
         
         if (i === 0) {
             // Header line: insert 'Sports' column name
             processedLines.push(`${firstColumn},Sports${restOfLine}`);
         } else {
-            // Data line: insert 'Soccer' value
-            processedLines.push(`${firstColumn},Soccer${restOfLine}`);
+            // Data line: insert the sport value
+            processedLines.push(`${firstColumn},${sportValue}${restOfLine}`);
         }
     }
     
     console.log(`✓ Loaded ${lines.length - 1} data rows`);
-    console.log(`✓ Added column 'Sports' (B欄) with value 'Soccer'`);
+    if (addFutsalSuffix) {
+        console.log(`✓ Added 'Futsal' suffix to Competition column where missing`);
+    }
+    console.log(`✓ Added column 'Sports' (B欄) with value '${sportValue}'`);
     console.log(`✓ New header: ${processedLines[0].trim()}`);
     
     // Write back to file with original encoding

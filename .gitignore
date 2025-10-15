@@ -5,6 +5,12 @@ node_modules/
 playwright-report/
 test-results/
 
+# Error screenshots
+*_error_screenshot.png
+*_not_found.png
+*_export_error.png
+error_screenshot.png
+
 # Playwright
 .playwright/
 
