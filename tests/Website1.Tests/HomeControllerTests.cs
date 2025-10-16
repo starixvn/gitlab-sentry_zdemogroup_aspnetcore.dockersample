@@ -33,5 +33,11 @@ namespace Website1.Tests
 
             Assert.IsType<ViewResult>(view);
         }
+
+        [Fact]
+        public void Fail_Test()
+        {
+            Assert.Equal(0, 1);
+        }
     }
 }
