@@ -56,6 +56,14 @@ namespace WebSite1
             });
 
             var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
+            Console.WriteLine("----------------APPSETTINGS----------------");
+            Console.WriteLine($"SentryDsn: {appSettings.SentryDsn}");
+            Console.WriteLine($"SentryEnvironment: {appSettings.SentryEnvironment}");
+            Console.WriteLine("----------------SHARED APPSETTINGS----------------");
+            Console.WriteLine($"Environment: {Configuration.GetSection("Environment").Value}");
+            Console.WriteLine($"ApplicationName: {Configuration.GetSection("ApplicationName").Value}");
+            Console.WriteLine($"Version: {Configuration.GetSection("Version").Value}");
+            Console.WriteLine("--------------------------------");
             LogManager
                  .SetDefaultLogCategory(appSettings.SentryEnvironment)
                  .Use(new List<ILogEngine>
