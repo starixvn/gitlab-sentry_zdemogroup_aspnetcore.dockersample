@@ -61,7 +61,7 @@ describe('App Component', () => {
   });
 
   // ❌ INTENTIONALLY FAILING TESTS FOR DEMONSTRATION ❌
-  
+
   it('FAIL: counter should start at 10 (wrong expectation)', () => {
     render(<App />);
     // This will fail because counter starts at 0, not 10
@@ -77,7 +77,7 @@ describe('App Component', () => {
   it('FAIL: increment should add 5 instead of 1', () => {
     render(<App />);
     const incrementButton = screen.getByRole('button', { name: /increment/i });
-    
+
     fireEvent.click(incrementButton);
     // This will fail because increment adds 1, not 5
     expect(screen.getByText(/Count: 5/i)).toBeInTheDocument();
