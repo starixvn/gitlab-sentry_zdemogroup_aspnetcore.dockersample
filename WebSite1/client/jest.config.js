@@ -1,6 +1,14 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
+  reporters: [
+    'default',
+    ['jest-sonar', {
+      outputDirectory: 'coverage',
+      outputName: 'sonar-test-report.xml',
+      reportedFilePath: 'absolute'
+    }]
+  ],
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '^@/(.*)$': '<rootDir>/src/$1',
