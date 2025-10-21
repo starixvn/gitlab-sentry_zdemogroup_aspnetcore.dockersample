@@ -29,5 +29,6 @@ export default {
     '!src/main.tsx',
     '!src/vite-env.d.ts',
   ],
+  coverageDirectory: 'reports/coverage'
 };
 
