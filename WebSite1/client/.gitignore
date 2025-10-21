@@ -27,6 +27,8 @@ dist-ssr
 coverage
 *.lcov
 .nyc_output
+reports
+test-report.xml
 
 # Jest
 .jest-cache

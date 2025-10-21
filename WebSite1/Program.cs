@@ -21,30 +21,8 @@ namespace WebSite1
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, config) =>
                 {
-                    // Clear default configuration sources
-                    config.Sources.Clear();
-
-                    // Get the content root path
-                    var contentRoot = context.HostingEnvironment.ContentRootPath;
-
-                    // Find all appsettings.*.json files including appsettings.json
-                    var appsettingsFiles = Directory.GetFiles(contentRoot, "appsettings*.json")
-                        .OrderBy(f => f)
-                        .ToList();
-
-                    // Add all appsettings files in alphabetical order
-                    foreach (var file in appsettingsFiles)
-                    {
-                        var fileName = Path.GetFileName(file);
-                        var isRequired = fileName == "appsettings.json";
-                        config.AddJsonFile(fileName, optional: !isRequired, reloadOnChange: true);
-                    }
-
-                    // Add command line arguments
-                    config.AddCommandLine(args);
-
-                    // Add environment variables
-                    config.AddEnvironmentVariables();
+                    config.AddJsonFile("appsettings.shared.json", optional: true);
+                    config.AddJsonFile("appsettings.json");
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
