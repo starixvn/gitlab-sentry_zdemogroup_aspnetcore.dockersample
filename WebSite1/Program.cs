@@ -21,7 +21,7 @@ namespace WebSite1
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((context, config) =>
                 {
-                    config.AddJsonFile("appsettings.shared.json", optional: true);
+                    config.AddJsonFile("shared/backend/appsettings.json", optional: true);
                     config.AddJsonFile("appsettings.json");
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
