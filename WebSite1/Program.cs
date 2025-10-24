@@ -19,11 +19,6 @@ namespace WebSite1
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((context, config) =>
-                {
-                    config.AddJsonFile("shared/backend/appsettings.json");
-                    config.AddJsonFile("appsettings.json");
-                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseUrls("http://0.0.0.0:5000");
