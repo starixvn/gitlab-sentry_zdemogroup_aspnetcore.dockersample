@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: sync_shared_configmaps
+    ref: avoid_redundant_builds
     file: nexcel.gitlab-ci.yml
