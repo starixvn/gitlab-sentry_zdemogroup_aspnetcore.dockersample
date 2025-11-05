@@ -5,7 +5,8 @@ const { processCsvFile } = require('../process_csv.js');
 const sportsConfig = require('../sports-config.js');
 const { sendTodayFilesEmail } = require('../send-email.js');
 const config = require('../config.js');
-const { deleteAllXlsxAndCsv } = require('../cleanup-files.js');
+const { deleteAllXlsxAndCsv, deleteXlsxAndCsvBySport } = require('../cleanup-files.js');
+const { mergeRugbyFiles } = require('../convert_to_xlsx.js');
 
 /**
  * Generic function to test any sport
@@ -17,6 +18,8 @@ async function testSport(page, sportKey) {
     console.log(`========================================\n`);
     
     test.setTimeout(120000); // Set timeout to 2 minutes
+
+    await deleteXlsxAndCsvBySport(sport.fileCode);
     
     try {
         console.log('Navigating to Betgenius login page...');
@@ -403,15 +406,6 @@ test.describe('Betgenius Automation - All Sports', () => {
     // Configure to run sequentially to ensure email sends only once
     test.describe.configure({ mode: 'serial' });
 
-    test('Delete all XLSX and CSV files', async () => {
-        await deleteAllXlsxAndCsv();
-    });
-
-    test('Download American Soccer data', async ({ page }) => {
-        await testSport(page, 'soccer');
-    });
-
-
     test('Download American Football data', async ({ page }) => {
         await testSport(page, 'americanFootball');
     });
@@ -444,12 +438,20 @@ test.describe('Betgenius Automation - All Sports', () => {
         await testSport(page, 'rugbyUnion');
     });
     
-    test('Download Water Polo data', async ({ page }) => {
-        await testSport(page, 'waterPolo');
+    test('Merge Rugby League and Rugby Union files', async () => {
+        console.log('\n\n🔄 Merging Rugby League and Rugby Union files...');
+        try {
+            await deleteXlsxAndCsvBySport('rugby');
+            const mergedPath = mergeRugbyFiles();
+            console.log(`\n✅ Rugby files merged successfully: ${path.basename(mergedPath)}`);
+        } catch (error) {
+            console.log(`\n⚠ Could not merge rugby files: ${error.message}`);
+            console.log('   You can manually merge by running: node convert_to_xlsx.js --merge-rugby');
+        }
     });
     
-    test('Download Futsal data', async ({ page }) => {
-        await testSport(page, 'futsal');
+    test('Download Water Polo data', async ({ page }) => {
+        await testSport(page, 'waterPolo');
     });
     
     // Send all files in one email after ALL tests in this suite complete

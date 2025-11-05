@@ -89,13 +89,6 @@ async function sendEmailWithFile(xlsxFilePath, csvFilePath = null, sportName = '
             });
         }
         
-        if (emailConfig.attachCsv && csvFilePath && fs.existsSync(csvFilePath)) {
-            attachments.push({
-                filename: path.basename(csvFilePath),
-                path: csvFilePath
-            });
-        }
-        
         // Create email options
         const mailOptions = {
             from: emailConfig.auth.user,

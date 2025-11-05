@@ -56,7 +56,7 @@ const sportsConfig = {
         name: 'Rugby League',
         sectionName: 'Rugby League',
         csvValue: 'Rugby',
-        fileCode: 'rugby',
+        fileCode: 'rl',
         useDynamicRange: false // 1 week
     },
     rugbyUnion: {

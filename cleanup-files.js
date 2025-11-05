@@ -77,7 +77,31 @@ function deleteAllXlsxAndCsv(directory = null, dryRun = false) {
     }
 }
 
+
+function deleteXlsxAndCsvBySport(sportCode = null) {
+    if (!sportCode) return;
+    const directory = config.downloadDir;
+    const files = fs.readdirSync(directory);
+    const xlsxFiles = files.filter(f => f.toLowerCase().endsWith('.xlsx'));
+    const csvFiles = files.filter(f => f.toLowerCase().endsWith('.csv'));
+    const allFiles = [...xlsxFiles, ...csvFiles];
+    const sportFiles = allFiles.filter(f => f.toLowerCase().includes(sportCode.toLowerCase()));
+    sportFiles.forEach(file => {
+        const filePath = path.join(directory, file);
+        fs.unlinkSync(filePath);
+        console.log(`  ✓ Deleted: ${file}`);
+    });
+    console.log(`\n✅ Cleanup complete!`);
+    console.log(`  Deleted: ${sportFiles.length} file(s)`);
+    return {
+        success: true,
+        deleted: sportFiles,
+        count: sportFiles.length
+    };
+}
+
 module.exports = {
     deleteAllXlsxAndCsv,
+    deleteXlsxAndCsvBySport
 };
 

@@ -174,6 +174,11 @@ if (require.main === module) {
         // Convert all and delete originals
         const bgDir = args[1] || config.downloadDir;
         convertAllCsvToXlsx(bgDir, true);
+    } else if (args[0] === '--merge-rugby') {
+        // Merge rugbyLeague and rugbyUnion files
+        const bgDir = args[1] || config.downloadDir;
+        const dateStr = args[2] || null;
+        mergeRugbyFiles(bgDir, dateStr);
     } else if (fs.existsSync(args[0])) {
         // Convert specific file
         const deleteOriginal = args.includes('--delete');
@@ -183,28 +188,127 @@ if (require.main === module) {
             fs.unlinkSync(args[0]);
             console.log(`\n✓ Deleted original CSV`);
         }
-    } else {
-        console.log(`
-Usage:
-  node convert_to_xlsx.js                    - Convert all CSV files in C:\\BG
-  node convert_to_xlsx.js --latest           - Convert only the latest CSV file
-  node convert_to_xlsx.js --all [directory]  - Convert all CSV files in directory
-  node convert_to_xlsx.js --delete-csv       - Convert all and delete CSV files
-  node convert_to_xlsx.js <file.csv>         - Convert specific file
-  node convert_to_xlsx.js <file.csv> --delete - Convert and delete original
+    }
+}
 
-Examples:
-  node convert_to_xlsx.js
-  node convert_to_xlsx.js --latest
-  node convert_to_xlsx.js C:\\BG\\BG-04-11-2024sc.csv
-  node convert_to_xlsx.js --delete-csv
-        `);
+/**
+ * Merge rugbyLeague and rugbyUnion XLSX files into one XLSX file
+ * @param {string} directory - Directory path (defaults to config.downloadDir)
+ * @param {string} dateStr - Date string in DD-MM-YYYY format (optional, defaults to today)
+ * @returns {string} Path to the merged XLSX file
+ */
+function mergeRugbyFiles(directory = null, dateStr = null) {
+    try {
+        const targetDir = directory || config.downloadDir;
+        
+        // Get date string if not provided
+        if (!dateStr) {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            dateStr = `${day}-${month}-${year}`;
+        }
+        
+        // File paths based on sports-config.js
+        // rugbyLeague uses fileCode: 'rugby', rugbyUnion uses fileCode: 'ru'
+        const rugbyLeaguePath = path.join(targetDir, `BG-${dateStr}rl.xlsx`);
+        const rugbyUnionPath = path.join(targetDir, `BG-${dateStr}ru.xlsx`);
+        
+        console.log(`\nMerging Rugby files:`);
+        console.log(`  Rugby League: ${path.basename(rugbyLeaguePath)}`);
+        console.log(`  Rugby Union:  ${path.basename(rugbyUnionPath)}`);
+        
+        // Check if files exist
+        if (!fs.existsSync(rugbyLeaguePath)) {
+            throw new Error(`Rugby League file not found: ${rugbyLeaguePath}`);
+        }
+        
+        if (!fs.existsSync(rugbyUnionPath)) {
+            throw new Error(`Rugby Union file not found: ${rugbyUnionPath}`);
+        }
+        
+        // Read both XLSX files
+        const leagueWorkbook = XLSX.readFile(rugbyLeaguePath);
+        const unionWorkbook = XLSX.readFile(rugbyUnionPath);
+        
+        // Get the first sheet from each workbook
+        const leagueSheetName = leagueWorkbook.SheetNames[0];
+        const unionSheetName = unionWorkbook.SheetNames[0];
+        const leagueSheet = leagueWorkbook.Sheets[leagueSheetName];
+        const unionSheet = unionWorkbook.Sheets[unionSheetName];
+        
+        // Convert sheets to JSON arrays
+        const leagueData = XLSX.utils.sheet_to_json(leagueSheet, { header: 1, defval: '' });
+        const unionData = XLSX.utils.sheet_to_json(unionSheet, { header: 1, defval: '' });
+        
+        console.log(`  Rugby League rows: ${leagueData.length}`);
+        console.log(`  Rugby Union rows:  ${unionData.length}`);
+        
+        // Combine data: header from league, then all league data, then union data (skip header)
+        const mergedData = [];
+        
+        // Add header from league file
+        if (leagueData.length > 0) {
+            mergedData.push(leagueData[0]);
+        }
+        
+        // Add all data rows from league (skip header)
+        for (let i = 1; i < leagueData.length; i++) {
+            mergedData.push(leagueData[i]);
+        }
+        
+        // Add all data rows from union (skip header)
+        for (let i = 1; i < unionData.length; i++) {
+            mergedData.push(unionData[i]);
+        }
+        
+        console.log(`  Merged rows: ${mergedData.length}`);
+        
+        // Create new workbook with merged data
+        const mergedWorkbook = XLSX.utils.book_new();
+        const mergedSheet = XLSX.utils.aoa_to_sheet(mergedData);
+        XLSX.utils.book_append_sheet(mergedWorkbook, mergedSheet, 'Rugby');
+        
+        // Output file path
+        const mergedFilePath = path.join(targetDir, `BG-${dateStr}rugby.xlsx`);
+        
+        // Write merged XLSX file
+        XLSX.writeFile(mergedWorkbook, mergedFilePath);
+        
+        // Get file size
+        const mergedSize = fs.statSync(mergedFilePath).size;
+        
+        console.log(`✓ Merge successful!`);
+        console.log(`  Output: ${path.basename(mergedFilePath)}`);
+        console.log(`  Size: ${(mergedSize / 1024).toFixed(2)} KB`);
+        
+        // Delete original files after successful merge
+        try {
+            fs.unlinkSync(rugbyLeaguePath);
+            console.log(`  ✓ Deleted: ${path.basename(rugbyLeaguePath)}`);
+        } catch (deleteError) {
+            console.log(`  ⚠ Could not delete Rugby League file: ${deleteError.message}`);
+        }
+        
+        try {
+            fs.unlinkSync(rugbyUnionPath);
+            console.log(`  ✓ Deleted: ${path.basename(rugbyUnionPath)}`);
+        } catch (deleteError) {
+            console.log(`  ⚠ Could not delete Rugby Union file: ${deleteError.message}`);
+        }
+        
+        return mergedFilePath;
+    } catch (error) {
+        console.error('❌ Error merging Rugby files:', error.message);
+        throw error;
     }
 }
 
 module.exports = {
     convertCsvToXlsx,
     convertAllCsvToXlsx,
-    convertLatestCsvToXlsx
+    convertLatestCsvToXlsx,
+    mergeRugbyFiles
 };
 
