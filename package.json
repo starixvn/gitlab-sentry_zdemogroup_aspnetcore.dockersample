@@ -25,10 +25,23 @@
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "install-browser": "npx playwright install chromium",
-    "process-csv": "node process_csv.js"
+    "process-csv": "node process_csv.js",
+    "convert-xlsx": "node convert_to_xlsx.js",
+    "convert-latest": "node convert_to_xlsx.js --latest",
+    "convert-all": "node convert_to_xlsx.js --all",
+    "email-test": "node send-email.js --test",
+    "email-send": "node send-email.js",
+    "api": "node api-server.js",
+    "api:dev": "nodemon api-server.js",
+    "sport": "node run-single-sport.js"
   },
   "dependencies": {
-    "playwright": "^1.40.0"
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "node-mailer": "^0.1.1",
+    "nodemailer": "^7.0.10",
+    "playwright": "^1.40.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0"

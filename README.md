@@ -23,6 +23,8 @@ This script automates the login and data download process from Betgenius Data Se
 - **Special Futsal handling**: Automatically adds "Futsal" suffix to Competition column if missing
 - **Automatic CSV processing**: Adds a 'Sports' column (B欄) with correct sport value (using Node.js)
 - **Independent tests**: Each sport has its own test and downloads to a separate file
+- **🆕 Excel conversion**: Automatically converts CSV to XLSX format
+- **🆕 Email notifications**: Send XLSX files via email after download 📧
 
 ## Setup
 
@@ -100,9 +102,87 @@ or
 node process_csv.js
 ```
 
-This will find and process the latest CSV file in `C:\BG\` directory.
+This will find and process the latest CSV file in `C:\BG\` directory and convert it to XLSX.
 
-## Configuration
+### Convert CSV to XLSX (Excel)
+Convert CSV files to Excel format:
+
+```bash
+# Convert all CSV files in C:\BG
+npm run convert-xlsx
+
+# Convert only the latest CSV file
+npm run convert-latest
+
+# Convert all CSV files in a specific directory
+npm run convert-all
+
+# Convert specific file
+node convert_to_xlsx.js "C:\BG\BG-04-11-2024sc.csv"
+
+# Convert and delete original CSV
+node convert_to_xlsx.js --delete-csv
+```
+
+**Note:** CSV files are **automatically converted to Excel (.xlsx)** format and can be **sent via email** during automation.
+
+📚 **Guides**: 
+- [CONVERT_TO_XLSX.md](./CONVERT_TO_XLSX.md) - Excel conversion guide
+- [EMAIL_SETUP_GUIDE.md](./EMAIL_SETUP_GUIDE.md) - Email setup guide 📧
+
+## Email Configuration (Optional)
+
+To enable automatic email sending of XLSX files:
+
+1. **Edit email-config.js**:
+   ```javascript
+   {
+     service: 'gmail',
+     auth: {
+       user: 'your-email@gmail.com',
+       pass: 'your-app-password'
+     },
+     recipients: ['recipient@example.com'],
+     enabled: true
+   }
+   ```
+
+2. **For Gmail**: Generate App Password at https://myaccount.google.com/apppasswords
+
+3. **Test email**:
+   ```bash
+   npm run email-test
+   ```
+
+📧 **Complete Guide**: See [EMAIL_SETUP_GUIDE.md](./EMAIL_SETUP_GUIDE.md)
+
+**Quick Test:**
+```bash
+npm run email-test
+```
+
+---
+
+## Complete Workflow
+
+When you run automation, the system automatically:
+
+1. 🌐 **Login** to BetGenius
+2. 📊 **Download** CSV data for selected sport
+3. ✏️ **Process** CSV (add 'Sports' column)
+4. 📑 **Convert** CSV to XLSX (Excel)
+5. 📧 **Email** XLSX file (if enabled)
+
+**Result:**
+- CSV file saved to `C:\BG\`
+- XLSX file saved to `C:\BG\`
+- XLSX file sent via email (optional)
+
+📖 **Detailed Workflow**: See [WORKFLOW_SUMMARY.md](./WORKFLOW_SUMMARY.md)
+
+---
+
+## BetGenius Configuration
 
 The script uses the following credentials:
 - Username: `livesupport@enpine.com`

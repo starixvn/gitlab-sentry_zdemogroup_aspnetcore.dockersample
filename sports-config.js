@@ -14,21 +14,21 @@ const sportsConfig = {
         name: 'American Football',
         sectionName: 'American Football',
         csvValue: 'Football',
-        fileCode: 'af',
+        fileCode: 'football',
         useDynamicRange: false // 1 week
     },
     aussieRules: {
         name: 'Aussie Rules',
         sectionName: 'Aussie Rules',
         csvValue: 'Other Sports',
-        fileCode: 'ar',
+        fileCode: 'os',
         useDynamicRange: false // 1 week
     },
     baseball: {
         name: 'Baseball',
         sectionName: 'Baseball',
         csvValue: 'Baseball',
-        fileCode: 'bb',
+        fileCode: 'baseball',
         useDynamicRange: false // 1 week
     },
     basketball: {
@@ -42,21 +42,21 @@ const sportsConfig = {
         name: 'Cricket',
         sectionName: 'Cricket',
         csvValue: 'Cricket',
-        fileCode: 'ck',
+        fileCode: 'cricket',
         useDynamicRange: false // 1 week
     },
     hockey: {
         name: 'Hockey',
         sectionName: 'Hockey',
         csvValue: 'Field Hockey',
-        fileCode: 'hk',
+        fileCode: 'fieldHockey',
         useDynamicRange: false // 1 week
     },
     rugbyLeague: {
         name: 'Rugby League',
         sectionName: 'Rugby League',
         csvValue: 'Rugby',
-        fileCode: 'rl',
+        fileCode: 'rugby',
         useDynamicRange: false // 1 week
     },
     rugbyUnion: {
@@ -70,7 +70,7 @@ const sportsConfig = {
         name: 'Water Polo',
         sectionName: 'Water Polo',
         csvValue: 'Water Polo',
-        fileCode: 'wp',
+        fileCode: 'waterPolo',
         useDynamicRange: false // 1 week
     },
     futsal: {

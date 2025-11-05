@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const { convertCsvToXlsx } = require('./convert_to_xlsx.js');
+const config = require('./config.js');
 
 /**
  * Process CSV file and add a 'Sports' column with the specified sport value
@@ -7,9 +9,11 @@ const path = require('path');
  * @param {string} filePath - Path to the CSV file to process
  * @param {string} sportValue - The sport value to insert (default: 'Soccer')
  * @param {boolean} addFutsalSuffix - If true, add "Futsal" to Competition column if missing (default: false)
- * @returns {Promise<void>}
+ * @param {boolean} convertToXlsx - Whether to convert to XLSX after processing (default: true)
+ * @param {boolean} sendEmail - Whether to send email with XLSX file (default: true)
+ * @returns {Promise<string>} Path to the processed file (XLSX if converted, otherwise CSV)
  */
-async function processCsvFile(filePath, sportValue = 'Soccer', addFutsalSuffix = false) {
+async function processCsvFile(filePath, sportValue = 'Soccer', addFutsalSuffix = false, convertToXlsx = true, sendEmail = true) {
     console.log(`Processing file: ${filePath}`);
     
     if (!fs.existsSync(filePath)) {
@@ -31,7 +35,21 @@ async function processCsvFile(filePath, sportValue = 'Soccer', addFutsalSuffix =
     // Check if 'Sports' column already exists
     if (headerLine.includes('Sports')) {
         console.log(`ℹ Column 'Sports' already exists, skipping processing`);
-        return;
+        
+        // Still convert to XLSX if requested
+        let xlsxPath = null;
+        if (convertToXlsx) {
+            try {
+                console.log('');
+                xlsxPath = convertCsvToXlsx(filePath);
+                console.log(`✓ XLSX file created: ${path.basename(xlsxPath)}`);
+            } catch (error) {
+                console.error('⚠ Failed to convert to XLSX:', error.message);
+            }
+        }
+        
+    
+        return xlsxPath || filePath;
     }
     
     // Process the file line by line
@@ -106,13 +124,29 @@ async function processCsvFile(filePath, sportValue = 'Soccer', addFutsalSuffix =
             }
         }
     }
+    
+    // Convert to XLSX if requested
+    let xlsxPath = null;
+    if (convertToXlsx) {
+        try {
+            console.log('');
+            xlsxPath = convertCsvToXlsx(filePath);
+            console.log(`✓ XLSX file created: ${path.basename(xlsxPath)}`);
+        } catch (error) {
+            console.error('⚠ Failed to convert to XLSX:', error.message);
+            console.log('CSV file is still available at:', filePath);
+        }
+    }
+    
+    
+    return xlsxPath || filePath;
 }
 
 /**
  * Find and process the latest CSV file in the target directory
  */
 async function processLatestCsv() {
-    const targetDir = 'C:\\BG';
+    const targetDir = config.downloadDir;
     
     // Get today's date in DD-MM-YYYY format
     const today = new Date();

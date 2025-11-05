@@ -2,6 +2,8 @@ const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 const { processCsvFile } = require('../process_csv.js');
+const config = require('../config.js');
+const { sendEmailWithFile } = require('../send-email.js');
 
 test.describe('Betgenius Automation', () => {
   test('Login and download soccer data', async ({ page }) => {
@@ -261,7 +263,7 @@ test.describe('Betgenius Automation', () => {
         }
         
         // Prepare download path and filename
-        const targetDir = 'C:\\BG';
+        const targetDir = config.downloadDir;
         if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });
             console.log(`Created directory: ${targetDir}`);
@@ -306,7 +308,8 @@ test.describe('Betgenius Automation', () => {
             // Process CSV with Node.js
             try {
                 console.log('Processing CSV file...');
-                await processCsvFile(targetPath);
+                const xlsxPath = await processCsvFile(targetPath);
+                await sendEmailWithFile(xlsxPath);
                 console.log('✓ CSV processing completed successfully!');
             } catch (csvError) {
                 console.error('⚠ CSV processing failed:', csvError.message);

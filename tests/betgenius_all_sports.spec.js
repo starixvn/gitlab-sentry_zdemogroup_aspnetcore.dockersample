@@ -3,6 +3,9 @@ const fs = require('fs');
 const path = require('path');
 const { processCsvFile } = require('../process_csv.js');
 const sportsConfig = require('../sports-config.js');
+const { sendTodayFilesEmail } = require('../send-email.js');
+const config = require('../config.js');
+const { deleteAllXlsxAndCsv } = require('../cleanup-files.js');
 
 /**
  * Generic function to test any sport
@@ -258,7 +261,7 @@ async function testSport(page, sportKey) {
         }
         
         // Prepare download path and filename
-        const targetDir = 'C:\\BG';
+        const targetDir = config.downloadDir;
         if (!fs.existsSync(targetDir)) {
             fs.mkdirSync(targetDir, { recursive: true });
             console.log(`Created directory: ${targetDir}`);
@@ -397,11 +400,18 @@ async function testSport(page, sportKey) {
 
 // Create individual test for each sport
 test.describe('Betgenius Automation - All Sports', () => {
-    
-    test('Download Soccer data', async ({ page }) => {
+    // Configure to run sequentially to ensure email sends only once
+    test.describe.configure({ mode: 'serial' });
+
+    test('Delete all XLSX and CSV files', async () => {
+        await deleteAllXlsxAndCsv();
+    });
+
+    test('Download American Soccer data', async ({ page }) => {
         await testSport(page, 'soccer');
     });
-    
+
+
     test('Download American Football data', async ({ page }) => {
         await testSport(page, 'americanFootball');
     });
@@ -442,5 +452,21 @@ test.describe('Betgenius Automation - All Sports', () => {
         await testSport(page, 'futsal');
     });
     
+    // Send all files in one email after ALL tests in this suite complete
+    test.afterAll(async () => {
+        console.log('\n\n📧 Sending all downloaded files in one email...');
+        try {
+            const emailResult = await sendTodayFilesEmail();
+            if (emailResult.success) {
+                console.log(`\n✅ All ${emailResult.filesAttached} file(s) sent successfully to: ${emailResult.recipients.join(', ')}`);
+            } else if (emailResult.message !== 'Email disabled in config') {
+                console.log(`\nℹ Email not sent: ${emailResult.message || emailResult.error}`);
+                console.log('   You can manually send all files by running: npm run email-send-all');
+            }
+        } catch (error) {
+            console.log(`\n⚠ Could not send email: ${error.message}`);
+            console.log('   You can manually send all files by running: npm run email-send-all');
+        }
+    });
 });
 
