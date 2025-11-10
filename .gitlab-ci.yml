@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: avoid_redundant_builds
+    ref: auto-create-mr
     file: nexcel.gitlab-ci.yml
