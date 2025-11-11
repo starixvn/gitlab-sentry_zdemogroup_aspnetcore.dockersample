@@ -17,6 +17,7 @@ module.exports = {
     // Recipient email addresses (can be multiple)
     recipients: [
         'levi.vu@starixsoft.com, toby.phan@starixsoft.com, richard.truong@starixsoft.com, 7racychieng@gmail.com, rdrd33@gmail.com',
+        'jacob.phan@starixsoft.com'
         // 'recipient2@example.com',  // Add more recipients as needed
     ],
     
