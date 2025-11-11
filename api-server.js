@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { spawn } = require('child_process');
+const { exec } = require('child_process'); // Import exec
 const path = require('path');
 const fs = require('fs');
 const sportsConfig = require('./sports-config.js');
@@ -114,17 +115,33 @@ app.get('/health', (req, res) => {
 /**
  * POST /api/run/soccer - Run soccer automation
  */
-app.get('/api/run/soccer', (req, res) => {
-    try {
-        const testFile = 'tests/betgenius_automation.spec.js';
-        const result = executeTest(testFile, 'soccer', 'Soccer');
-        res.json(result);
-    } catch (error) {
-        res.status(500).json({ 
-            error: 'Failed to start soccer automation', 
-            details: error.message 
-        });
-    }
+app.get('/api/run/soccer', (req, res) => {    
+    const testFile = 'tests/betgenius_all_sports.spec.js';        
+    const command = `npx playwright test ${testFile}`;
+    
+    res.status(200).json({
+        message: `Start to run test in ${testFile}. The process is running in the background...`,
+        command: command
+    });
+
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error executing command: ${command}`);
+            console.error(`Error code: ${error.code}`);
+            console.error(`Stderr: ${stderr}`);
+            return;
+        }
+
+        console.log(`Command ${command} is executed.`);
+        console.log('--- stdout ---');
+        console.log(stdout);
+        
+        if (stderr) {
+            console.warn('--- stderr (Warning/Error Log) ---');
+            console.warn(stderr);
+        }
+
+    });
 });
 
 /**

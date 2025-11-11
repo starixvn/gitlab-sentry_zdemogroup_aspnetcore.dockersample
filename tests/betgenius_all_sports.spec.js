@@ -6,8 +6,8 @@ const sportsConfig = require('../sports-config.js');
 const { sendTodayFilesEmail } = require('../send-email.js');
 const config = require('../config.js');
 const { deleteAllXlsxAndCsv, deleteXlsxAndCsvBySport } = require('../cleanup-files.js');
-const { mergeRugbyFiles } = require('../convert_to_xlsx.js');
-
+const { mergeRugbyFiles, mergeFootballAndFutsalFiles } = require('../convert_to_xlsx.js');
+const { processSoccerFeed } = require('../soccer_feed.js');
 /**
  * Generic function to test any sport
  */
@@ -405,11 +405,32 @@ async function testSport(page, sportKey) {
 test.describe('Betgenius Automation - All Sports', () => {
     // Configure to run sequentially to ensure email sends only once
     test.describe.configure({ mode: 'serial' });
-
+    
+    test('Download Soccer data', async ({ page }) => {
+        await testSport(page, 'soccer');
+    }); 
+    
     test('Download American Football data', async ({ page }) => {
         await testSport(page, 'americanFootball');
     });
     
+    test('Download Futsal data', async ({ page }) => {
+        await testSport(page, 'futsal');
+    });
+
+    test('Merge Football and Futsal files', async () => {
+        console.log('\n\n🔄 Merging Football and Futsal files...');
+        try {
+            await deleteXlsxAndCsvBySport('football');            
+            const mergedPath = mergeFootballAndFutsalFiles();
+            processSoccerFeed(mergedPath);
+            console.log(`\n✅ Football and Futsal files merged successfully: ${path.basename(mergedPath)}`);
+        } catch (error) {
+            console.log(`\n⚠ Could not merge Football and Futsal files: ${error.message}`);
+            console.log('   You can manually merge by running: node convert_to_xlsx.js --merge-football-futsal');
+        }
+    });
+            
     test('Download Aussie Rules data', async ({ page }) => {
         await testSport(page, 'aussieRules');
     });
@@ -454,6 +475,18 @@ test.describe('Betgenius Automation - All Sports', () => {
         await testSport(page, 'waterPolo');
     });
     
+     test('Merge American Football and Futsal files', async () => {
+        console.log('\n\n🔄 Merging American Football and Futsal files...');
+        try {
+            await deleteXlsxAndCsvBySport('football');            
+            const mergedPath = mergeFootballAndFutsalFiles();
+            console.log(`\n✅ American Football and Futsal files merged successfully: ${path.basename(mergedPath)}`);
+        } catch (error) {
+            console.log(`\n⚠ Could not merge American Football and Futsal files: ${error.message}`);
+            console.log('   You can manually merge by running: node convert_to_xlsx.js --merge-football-futsal');
+        }
+    });
+
     // Send all files in one email after ALL tests in this suite complete
     test.afterAll(async () => {
         console.log('\n\n📧 Sending all downloaded files in one email...');

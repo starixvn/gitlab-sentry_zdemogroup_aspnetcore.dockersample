@@ -7,8 +7,8 @@ const sportsConfig = {
         sectionName: 'Football', // Name on the website (primary)
         alternativeName: 'Soccer', // Fallback name
         csvValue: 'Soccer',
-        fileCode: 'sc',
-        useDynamicRange: true // Soccer uses day-based logic
+        fileCode: 'sco',
+        useDynamicRange: false // Soccer uses day-based logic
     },
     americanFootball: {
         name: 'American Football',
@@ -79,7 +79,7 @@ const sportsConfig = {
         csvValue: 'Soccer',
         fileCode: 'fs',
         useDynamicRange: true, // Same as Soccer
-        requiresFutsalSuffix: true // Special: Add "Futsal" to Competition if missing
+        requiresFutsalSuffix: false // Special: Add "Futsal" to Competition if missing
     }
 };
 
