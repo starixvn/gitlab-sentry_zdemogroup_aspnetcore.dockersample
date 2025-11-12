@@ -7,10 +7,37 @@ const { sendTodayFilesEmail } = require('../send-email.js');
 const config = require('../config.js');
 const { deleteAllXlsxAndCsv, deleteXlsxAndCsvBySport } = require('../cleanup-files.js');
 const { mergeRugbyFiles, mergeFootballAndFutsalFiles } = require('../convert_to_xlsx.js');
-const { processSoccerFeed } = require('../soccer_feed.js');
+const { processSoccerFeed, splitFileByDate } = require('../soccer_feed.js');
 /**
  * Generic function to test any sport
  */
+async function testLogin(page) {
+    
+    const loginStatusLocator = page.locator('#Body_HeadLoginStatus');
+    if (await loginStatusLocator.isVisible()) {
+        console.log('Already logged in, skipping login step.');
+        return;
+    }
+
+    console.log('Filling login credentials...');
+    // Fill username
+    await page.fill('input[name="ctl00$MainContent$txtUsername"], input[type="text"]', 'livesupport@enpine.com');
+    
+    // Fill password (decoded from base64)
+    const passwordBase64 = 'IVFBWjJ3c3g=';
+    const password = Buffer.from(passwordBase64, 'base64').toString('utf-8');
+    await page.fill('input[name="ctl00$MainContent$txtPassword"], input[type="password"]', password);
+    
+    // Click login button
+    console.log('Clicking login button...');
+    await page.click('input[type="submit"], input[value*="Login"], button[type="submit"]');
+    
+    // Wait for navigation after login
+    await page.waitForLoadState('networkidle');
+    
+    console.log(`Login successful...`);
+        
+}
 async function testSport(page, sportKey) {
     const sport = sportsConfig[sportKey];
     console.log(`\n========================================`);
@@ -27,25 +54,7 @@ async function testSport(page, sportKey) {
         
         // Wait for the page to load
         await page.waitForLoadState('networkidle');
-        
-        console.log('Filling login credentials...');
-        // Fill username
-        await page.fill('input[name="ctl00$MainContent$txtUsername"], input[type="text"]', 'livesupport@enpine.com');
-        
-        // Fill password (decoded from base64)
-        const passwordBase64 = 'IVFBWjJ3c3g=';
-        const password = Buffer.from(passwordBase64, 'base64').toString('utf-8');
-        await page.fill('input[name="ctl00$MainContent$txtPassword"], input[type="password"]', password);
-        
-        // Click login button
-        console.log('Clicking login button...');
-        await page.click('input[type="submit"], input[value*="Login"], button[type="submit"]');
-        
-        // Wait for navigation after login
-        await page.waitForLoadState('networkidle');
-        
-        console.log(`Login successful, looking for ${sport.name} section...`);
-        
+        await testLogin(page);
         // Wait a bit for dynamic content to load
         await page.waitForTimeout(2000);
         
@@ -406,87 +415,45 @@ test.describe('Betgenius Automation - All Sports', () => {
     // Configure to run sequentially to ensure email sends only once
     test.describe.configure({ mode: 'serial' });
     
-    test('Download Soccer data', async ({ page }) => {
-        await testSport(page, 'soccer');
+    // Clean up all xlsx and csv files before running tests
+    test.beforeAll(async () => {
+        console.log('\n🧹 Cleaning up all existing xlsx and csv files...');
+        await deleteAllXlsxAndCsv();
+        console.log('✅ Cleanup completed\n');
+    });
+      
+
+    test('Download Soccer and Futsal data, merge to soccer file', async ({ page }) => {
+        await testSport(page, 'futsal');        
+        await testSport(page, 'soccer');        
+        await deleteXlsxAndCsvBySport('sc');            
+        const mergedPath = mergeFootballAndFutsalFiles();
+        processSoccerFeed(mergedPath);
+        console.log(`\n✅ Football and Futsal files merged successfully: ${path.basename(mergedPath)}`);
+        splitFileByDate(mergedPath);
+        console.log(`\n✅ Football and Futsal Split by date successfully`);
     }); 
     
-    test('Download American Football data', async ({ page }) => {
-        await testSport(page, 'americanFootball');
-    });
-    
-    test('Download Futsal data', async ({ page }) => {
-        await testSport(page, 'futsal');
+    test('Download Rugby League amd Rugby Union data, merge to rugby file', async ({ page }) => {
+        await testSport(page, 'rugbyLeague');                
+        await testSport(page, 'rugbyUnion');
+        await deleteXlsxAndCsvBySport('rugby');
+        const mergedPath = mergeRugbyFiles();
+        console.log(`\n✅ Rugby files merged successfully: ${path.basename(mergedPath)}`);
     });
 
-    test('Merge Football and Futsal files', async () => {
-        console.log('\n\n🔄 Merging Football and Futsal files...');
-        try {
-            await deleteXlsxAndCsvBySport('football');            
-            const mergedPath = mergeFootballAndFutsalFiles();
-            processSoccerFeed(mergedPath);
-            console.log(`\n✅ Football and Futsal files merged successfully: ${path.basename(mergedPath)}`);
-        } catch (error) {
-            console.log(`\n⚠ Could not merge Football and Futsal files: ${error.message}`);
-            console.log('   You can manually merge by running: node convert_to_xlsx.js --merge-football-futsal');
-        }
-    });
-            
-    test('Download Aussie Rules data', async ({ page }) => {
+
+    
+    test('Download Other sports Football data', async ({ page }) => {
+        await testSport(page, 'americanFootball');
         await testSport(page, 'aussieRules');
-    });
-    
-    test('Download Baseball data', async ({ page }) => {
         await testSport(page, 'baseball');
-    });
-    
-    test('Download Basketball data', async ({ page }) => {
         await testSport(page, 'basketball');
-    });
-    
-    test('Download Cricket data', async ({ page }) => {
         await testSport(page, 'cricket');
-    });
-    
-    test('Download Hockey data', async ({ page }) => {
         await testSport(page, 'hockey');
-    });
-    
-    test('Download Rugby League data', async ({ page }) => {
-        await testSport(page, 'rugbyLeague');
-    });
-    
-    test('Download Rugby Union data', async ({ page }) => {
-        await testSport(page, 'rugbyUnion');
-    });
-    
-    test('Merge Rugby League and Rugby Union files', async () => {
-        console.log('\n\n🔄 Merging Rugby League and Rugby Union files...');
-        try {
-            await deleteXlsxAndCsvBySport('rugby');
-            const mergedPath = mergeRugbyFiles();
-            console.log(`\n✅ Rugby files merged successfully: ${path.basename(mergedPath)}`);
-        } catch (error) {
-            console.log(`\n⚠ Could not merge rugby files: ${error.message}`);
-            console.log('   You can manually merge by running: node convert_to_xlsx.js --merge-rugby');
-        }
-    });
-    
-    test('Download Water Polo data', async ({ page }) => {
         await testSport(page, 'waterPolo');
     });
-    
-     test('Merge American Football and Futsal files', async () => {
-        console.log('\n\n🔄 Merging American Football and Futsal files...');
-        try {
-            await deleteXlsxAndCsvBySport('football');            
-            const mergedPath = mergeFootballAndFutsalFiles();
-            console.log(`\n✅ American Football and Futsal files merged successfully: ${path.basename(mergedPath)}`);
-        } catch (error) {
-            console.log(`\n⚠ Could not merge American Football and Futsal files: ${error.message}`);
-            console.log('   You can manually merge by running: node convert_to_xlsx.js --merge-football-futsal');
-        }
-    });
-
+                
     // Send all files in one email after ALL tests in this suite complete
     test.afterAll(async () => {
         console.log('\n\n📧 Sending all downloaded files in one email...');
@@ -504,4 +471,3 @@ test.describe('Betgenius Automation - All Sports', () => {
         }
     });
 });
-

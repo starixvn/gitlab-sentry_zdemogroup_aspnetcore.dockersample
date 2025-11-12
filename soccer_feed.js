@@ -1,5 +1,31 @@
 const XLSX = require("xlsx");
 const fs = require("fs");
+const config = require("./config.js");
+const path = require("path");
+
+function formatXlsxDateCells(worksheet) {
+  // Format all cells in column E with custom date format: m/d/yyyy h:mm
+  const range = XLSX.utils.decode_range(worksheet["!ref"]);
+  for (let row = range.s.r; row <= range.e.r; row++) {
+    const cellAddress = XLSX.utils.encode_cell({ r: row, c: 4 }); // Column E (index 4)
+    if (worksheet[cellAddress]) {
+      worksheet[cellAddress].z = "m/d/yyyy h:mm";
+    }
+  }
+}
+
+function setXlsxColumnWidths(worksheet) {
+  if (!worksheet["!cols"]) {
+    worksheet["!cols"] = [];
+  }
+  worksheet["!cols"][0] = { wch: 30 }; // Column A (index 0)
+  worksheet["!cols"][1] = { wch: 10 }; // Column B (index 1)
+  worksheet["!cols"][2] = { wch: 10 }; // Column C (index 2)
+  worksheet["!cols"][3] = { wch: 30 }; // Column D (index 3)
+  worksheet["!cols"][4] = { wch: 15 }; // Column E (index 4)
+  worksheet["!cols"][5] = { wch: 15 }; // Column F (index 5)
+  worksheet["!cols"][6] = { wch: 15 }; // Column G (index 6)
+}
 
 function processSoccerFeed(xlsxFilePath) {
   try {
@@ -58,22 +84,6 @@ function processSoccerFeed(xlsxFilePath) {
     const newWorkbook = XLSX.utils.book_new();
     const newWorksheet = XLSX.utils.aoa_to_sheet(filteredData);
 
-    // Set auto width for all columns and format date cells
-    const range = XLSX.utils.decode_range(newWorksheet["!ref"]);
-    const cols = [];
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      cols.push({ wch: 20 }); // Auto width
-    }
-    newWorksheet["!cols"] = cols;
-
-    // Format date cells in column E
-    for (let row = range.s.r; row <= range.e.r; row++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: row, c: 4 }); // Column E (index 4)
-      if (newWorksheet[cellAddress]) {
-        newWorksheet[cellAddress].z = "m/d/yyyy h:mm";
-      }
-    }
-
     XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, sheetName);
 
     // Write the filtered XLSX file (overwrite original)
@@ -112,7 +122,6 @@ function shouldSkipRow(timeValue, feedValue, startOffset, endOffset) {
 
   return shouldSkip;
 }
-
 
 function parseRowTime(timeValue) {
   let rowTime;
@@ -171,9 +180,75 @@ function dateRangeForSkippingFeeds() {
   return { startOffset, endOffset };
 }
 
+function filterDataByDate(data, targetDate) {
+  const timeFrom = new Date(targetDate);
+  timeFrom.setHours(12, 0, 0, 0);
+  const timeTo = new Date(timeFrom);
+  timeTo.setDate(timeFrom.getDate() + 1);
+  timeTo.setMinutes(timeTo.getMinutes() - 1);
+
+  return data.filter((row) => {
+    const timeValue = parseRowTime(row[4]); // Column E (index 4) - Time
+    return timeValue >= timeFrom && timeValue <= timeTo;
+  });
+}
+
+function splitFileByDate(xlsxFilePath) {
+  const targetDir = config.downloadDir;
+  const backupFilePath = xlsxFilePath + ".bak.xlsx";
+  fs.renameSync(xlsxFilePath, backupFilePath);
+
+  // Read the XLSX file
+  const workbook = XLSX.readFile(backupFilePath);
+
+  // Get the first sheet
+  const sheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[sheetName];
+
+  // Convert sheet to JSON array for processing
+  const data = XLSX.utils.sheet_to_json(worksheet, {
+    header: 1,
+    defval: "",
+  });
+
+  // Get today
+  const today = new Date();
+  for (let i = 0; i < 7; i++) {
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + i);
+    const filteredData = filterDataByDate(data, targetDate);
+    const filepath = getFilePathForDate(targetDate);
+    const newWorkbook = XLSX.utils.book_new();
+    const newWorksheet = XLSX.utils.aoa_to_sheet(filteredData);
+
+    XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, sheetName);
+
+    setXlsxColumnWidths(newWorksheet);
+    formatXlsxDateCells(newWorksheet);
+    
+    // Write the filtered XLSX file (overwrite original)
+    XLSX.writeFile(newWorkbook, filepath);
+
+    console.log(`✓ Splited soccer Soccer for ${targetDate.toDateString()}`);
+    console.log(`  File: ${filepath}`);
+    console.log(`  Total rows: ${data.length}`);    
+  }
+
+  fs.unlinkSync(backupFilePath);
+}
+
+function getFilePathForDate(targetDate) {
+  const targetDir = config.downloadDir;
+  const day = String(targetDate.getDate()).padStart(2, "0");
+  const month = String(targetDate.getMonth() + 1).padStart(2, "0");
+  const year = targetDate.getFullYear();
+  const dateStr = `${day}-${month}-${year}`;
+  return path.join(targetDir, `BG-${dateStr}sc.xlsx`);
+}
+
 if (require.main === module) {
   const xlsxFilePath = "C:\\BG\\BG-11-11-2025sco.xlsx";
   processSoccerFeed(xlsxFilePath);
 }
 
-module.exports = { processSoccerFeed };
+module.exports = { processSoccerFeed, splitFileByDate };

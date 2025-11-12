@@ -55,6 +55,11 @@ EXPOSE 5000
 ENV NODE_ENV=production
 ENV DOWNLOAD_DIR=/app/downloads
 
+# LOCAL
+ENV HTTP_PROXY="http://proxysqd.nexdev.net:3128/" 
+ENV HTTPS_PROXY="http://proxysqd.nexdev.net:3128/"
+
+
 # Default command - can be overridden
 CMD ["npm", "run", "api"]
 

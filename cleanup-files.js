@@ -85,7 +85,7 @@ function deleteXlsxAndCsvBySport(sportCode = null) {
     const xlsxFiles = files.filter(f => f.toLowerCase().endsWith('.xlsx'));
     const csvFiles = files.filter(f => f.toLowerCase().endsWith('.csv'));
     const allFiles = [...xlsxFiles, ...csvFiles];
-    const sportFiles = allFiles.filter(f => f.toLowerCase().includes(sportCode.toLowerCase()));
+    const sportFiles = allFiles.filter(f => f.toLowerCase().includes(sportCode.toLowerCase() + "."));
     sportFiles.forEach(file => {
         const filePath = path.join(directory, file);
         fs.unlinkSync(filePath);

@@ -275,7 +275,7 @@ function getTodayXlsxFiles(directory = null) {
     try {
         const files = fs.readdirSync(directory);
         const xlsxFiles = files
-            .filter(f => f.toLowerCase().endsWith('.xlsx') && f.includes(dateStr))
+            .filter(f => f.toLowerCase().endsWith('.xlsx'))
             .map(f => path.join(directory, f))
             .filter(f => fs.existsSync(f))
             .sort(); // Sort alphabetically

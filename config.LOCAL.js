@@ -1,5 +1,5 @@
 module.exports = {
-    downloadDir: '\\app\\downloads',
+    downloadDir: '/app/downloads',
     port: 5000,
     playwright: {
         headless: true,

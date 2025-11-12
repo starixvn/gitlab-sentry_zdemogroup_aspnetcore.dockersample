@@ -1,12 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const { spawn } = require('child_process');
-const { exec } = require('child_process'); // Import exec
 const path = require('path');
 const fs = require('fs');
 const sportsConfig = require('./sports-config.js');
 const config = require('./config.js');
-
+const cron = require('node-cron');
 const app = express();
 const PORT = process.env.PORT || config.port;
 
@@ -25,6 +24,23 @@ let jobIdCounter = 1;
  * @returns {Object} Job information
  */
 function executeTest(testFile, jobType, sportName = null) {
+    // Kiểm tra xem có job nào đang chạy không
+    for (const [existingJobId, existingJob] of jobs) {
+        if (existingJob.status === 'running') {
+            return {
+                jobId: existingJobId,
+                status: 'busy',
+                message: 'Server is busy, there is a job already running',
+                runningJob: {
+                    id: existingJobId,
+                    type: existingJob.type,
+                    sport: existingJob.sport,
+                    startTime: existingJob.startTime
+                }
+            };
+        }
+    }
+
     const jobId = `job-${jobIdCounter++}`;
     const timestamp = new Date().toISOString();
     
@@ -112,53 +128,38 @@ app.get('/health', (req, res) => {
     });
 });
 
-/**
- * POST /api/run/soccer - Run soccer automation
- */
-app.get('/api/run/soccer', (req, res) => {    
-    const testFile = 'tests/betgenius_all_sports.spec.js';        
-    const command = `npx playwright test ${testFile}`;
-    
-    res.status(200).json({
-        message: `Start to run test in ${testFile}. The process is running in the background...`,
-        command: command
-    });
 
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error executing command: ${command}`);
-            console.error(`Error code: ${error.code}`);
-            console.error(`Stderr: ${stderr}`);
-            return;
-        }
-
-        console.log(`Command ${command} is executed.`);
-        console.log('--- stdout ---');
-        console.log(stdout);
-        
-        if (stderr) {
-            console.warn('--- stderr (Warning/Error Log) ---');
-            console.warn(stderr);
-        }
-
-    });
-});
-
-/**
- * POST /api/run/all-sports - Run all sports automation
- */
-app.get('/api/run/other-sports', (req, res) => {
+app.get('/api/run/all', (req, res) => {
     try {
         const testFile = 'tests/betgenius_all_sports.spec.js';
         const result = executeTest(testFile, 'all-sports', 'All Sports');
         res.json(result);
     } catch (error) {
+        res.status(500).json({
+            error: 'Failed to start all sports automation',
+            details: error.message
+        });
+    }
+});
+
+
+/**
+ * Get / - Return the information of the last job
+ */
+app.get('/', (req, res) => {
+    try {
+        // get the last job
+        const lastJobId = Array.from(jobs.keys()).pop();
+        const result = jobs.get(lastJobId) || { message: 'No jobs have been run yet' };
+        res.json(result);
+    } catch (error) {
         res.status(500).json({ 
-            error: 'Failed to start all sports automation', 
+            error: 'Failed to retrieve last job information', 
             details: error.message 
         });
     }
 });
+
 
 
 // Error handling middleware
@@ -178,14 +179,25 @@ app.use((req, res) => {
     });
 });
 
+
+// Set timezone for job to Asia/Ho_Chi_Minh (GMT+7)
+cron.schedule('0 5 * * *', () => {
+    console.log('Run job daily at 5:00 AM GMT+7');
+    const testFile = 'tests/betgenius_all_sports.spec.js';
+    const result = executeTest(testFile, 'all-sports', 'All Sports');  
+}, {
+  scheduled: true,
+  timezone: "Asia/Ho_Chi_Minh" 
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`\n🚀 BetGenius Automation API Server`);
 
     console.log(`\nAvailable endpoints:`);
-    console.log(`  POST   /api/run/soccer        - Run soccer automation`);
-    console.log(`  POST   /api/run/all-sports    - Run all sports automation`);
-    console.log(`  GET    /health            - Health check`);
+    console.log(`  POST   /api/run/all    - Run all sports automation`);
+    console.log(`  GET    /health         - Health check`);
+    console.log(`  GET    /               - Get last job information`);
     console.log(`\n✅ Ready to accept requests!\n`);
 });
 

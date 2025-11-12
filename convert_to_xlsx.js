@@ -3,6 +3,17 @@ const fs = require("fs");
 const path = require("path");
 const config = require("./config.js");
 
+function fileExists(filePath) {
+    try {
+        // Sử dụng fs.accessSync() thay vì await fs.access()
+        fs.accessSync(filePath, constants.F_OK);
+        return true;
+    } catch (e) {
+        // Nếu có lỗi (thường là ENOENT - File not found), trả về false
+        return false;
+    }
+}
+
 /**
  * Convert CSV file to XLSX (Excel) format
  * @param {string} csvFilePath - Path to the CSV file
@@ -225,6 +236,37 @@ if (require.main === module) {
   }
 }
 
+function mergeRugbyFilesInCaseFileNotFound(rugbyLeaguePath, rugbyUnionPath, mergedFilePath) {
+    const leagueExists = fileExists(rugbyLeaguePath);
+    const unionExists = fileExists(rugbyUnionPath);
+
+    // Case 1: Both files exist - proceed to merge
+    if (leagueExists && unionExists) {
+        return true
+    }
+
+    // Case 2: Neither file exists - nothing to merge
+    if (!leagueExists && !unionExists) {
+        console.log(`Neither Rugby League nor Rugby Union file found.`);
+        return false;
+    }
+
+    let sourceFilePath = null;
+    
+    if (unionExists && !leagueExists) {
+        console.log(`Only found Rugby Union file: ${rugbyUnionPath}`);
+        sourceFilePath = rugbyUnionPath;
+    }
+    else if (!unionExists && leagueExists) {
+        console.log(`Only found Rugby League file: ${rugbyLeaguePath}`);
+        sourceFilePath = rugbyLeaguePath;
+    }
+    // Copy the existing file to the merged file path
+    fs.copyFileSync(sourceFilePath, mergedFilePath);
+
+    return false;
+}
+
 /**
  * Merge rugbyLeague and rugbyUnion XLSX files into one XLSX file
  * @param {string} directory - Directory path (defaults to config.downloadDir)
@@ -248,6 +290,12 @@ function mergeRugbyFiles(directory = null, dateStr = null) {
     // rugbyLeague uses fileCode: 'rugby', rugbyUnion uses fileCode: 'ru'
     const rugbyLeaguePath = path.join(targetDir, `BG-${dateStr}rl.xlsx`);
     const rugbyUnionPath = path.join(targetDir, `BG-${dateStr}ru.xlsx`);
+    const mergedFilePath = path.join(targetDir, `BG-${dateStr}rugby.xlsx`);
+
+    if(mergeRugbyFilesInCaseFileNotFound(rugbyLeaguePath, rugbyUnionPath, mergedFilePath) === false) {
+        console.log(`\nNo merge needed, single rugby file created: ${path.basename(mergedFilePath)}`);
+        return mergedFilePath;
+    }
 
     console.log(`\nMerging Rugby files:`);
     console.log(`  Rugby League: ${path.basename(rugbyLeaguePath)}`);
@@ -312,9 +360,7 @@ function mergeRugbyFiles(directory = null, dateStr = null) {
     setXlsxColumnWidths(mergedSheet);
     XLSX.utils.book_append_sheet(mergedWorkbook, mergedSheet, "Rugby");
 
-    // Output file path
-    const mergedFilePath = path.join(targetDir, `BG-${dateStr}rugby.xlsx`);
-
+    
     // Write merged XLSX file
     XLSX.writeFile(mergedWorkbook, mergedFilePath);
 
