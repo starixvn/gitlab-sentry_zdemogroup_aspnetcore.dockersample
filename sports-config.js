@@ -76,7 +76,7 @@ const sportsConfig = {
     futsal: {
         name: 'Futsal',
         sectionName: 'Futsal',
-        csvValue: 'Soccer',
+        csvValue: 'Futsal',
         fileCode: 'fs',
         useDynamicRange: false, // Same as Soccer
         requiresFutsalSuffix: true // Special: Add "Futsal" to Competition if missing

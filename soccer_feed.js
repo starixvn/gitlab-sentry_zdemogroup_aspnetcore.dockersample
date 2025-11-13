@@ -193,8 +193,7 @@ function filterDataByDate(data, targetDate) {
   });
 }
 
-function splitFileByDate(xlsxFilePath) {
-  const targetDir = config.downloadDir;
+function splitFileByDate(xlsxFilePath) {  
   const backupFilePath = xlsxFilePath + ".bak.xlsx";
   fs.renameSync(xlsxFilePath, backupFilePath);
 
@@ -210,7 +209,7 @@ function splitFileByDate(xlsxFilePath) {
     header: 1,
     defval: "",
   });
-
+  
   // Get today
   const today = new Date();
   for (let i = 0; i < 7; i++) {
@@ -219,6 +218,7 @@ function splitFileByDate(xlsxFilePath) {
     const filteredData = filterDataByDate(data, targetDate);
     const filepath = getFilePathForDate(targetDate);
     const newWorkbook = XLSX.utils.book_new();
+    filteredData.unshift(data[0]); // add header row back
     const newWorksheet = XLSX.utils.aoa_to_sheet(filteredData);
 
     XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, sheetName);
