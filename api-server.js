@@ -24,7 +24,7 @@ let jobIdCounter = 1;
  * @returns {Object} Job information
  */
 function executeTest(testFile, jobType, sportName = null) {
-    // Kiểm tra xem có job nào đang chạy không
+    // Check if a job is already running
     for (const [existingJobId, existingJob] of jobs) {
         if (existingJob.status === 'running') {
             return {
@@ -41,6 +41,7 @@ function executeTest(testFile, jobType, sportName = null) {
         }
     }
 
+    console.log(`\n🚀 Starting job: ${jobType} ${sportName} at ${new Date()}`);
     const jobId = `job-${jobIdCounter++}`;
     const timestamp = new Date().toISOString();
     
@@ -97,6 +98,10 @@ function executeTest(testFile, jobType, sportName = null) {
         }
         
         console.log(`[${jobId}] Process exited with code ${code}`);
+        if (job.status === 'failed') {
+            console.log(`[${jobId}] Restarting job due to error...`);
+            executeTest(testFile, jobType, sportName);
+        }
     });
     
     // Handle errors
@@ -105,6 +110,9 @@ function executeTest(testFile, jobType, sportName = null) {
         job.error = error.message;
         job.endTime = new Date().toISOString();
         console.error(`[${jobId}] Error:`, error);
+        // rerun job on error
+        console.log(`[${jobId}] Restarting job due to error...`);
+        executeTest(testFile, jobType, sportName);
     });
     
     return {

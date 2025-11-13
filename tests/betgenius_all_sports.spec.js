@@ -68,11 +68,11 @@ async function testSport(page, sportKey) {
             await sportElement.waitFor({ state: 'visible', timeout: 10000 });
             console.log(`Found ${sport.sectionName} section`);
         } catch (error) {
-            console.log(`${sport.sectionName} not found with exact match, trying alternative...`);
-            html_content = page.content()
-            htmlPath = path.join(config.downloadDir, `${sport.fileCode}.html`);
-            await fs.writeFile(htmlPath, html_content);
-            
+            console.log(`${sport.sectionName} not found with exact match, trying alternative...`);            
+            const html_content = await page.content();
+            const htmlPath = path.join(config.downloadDir, `${sportKey}_page_content.html`);
+            fs.writeFileSync(htmlPath, html_content);
+
             // Try alternative name if exists
             if (sport.alternativeName) {
                 try {
