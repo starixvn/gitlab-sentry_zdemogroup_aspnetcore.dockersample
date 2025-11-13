@@ -427,34 +427,49 @@ test.describe('Betgenius Automation - All Sports', () => {
       
 
     test('Download Soccer and Futsal data, merge to soccer file', async ({ page }) => {
-        await testSport(page, 'futsal');        
-        await testSport(page, 'soccer');        
-        await deleteXlsxAndCsvBySport('sc');            
-        const mergedPath = mergeFootballAndFutsalFiles();
-        processSoccerFeed(mergedPath);
-        console.log(`\n✅ Football and Futsal files merged successfully: ${path.basename(mergedPath)}`);
-        splitFileByDate(mergedPath);
-        console.log(`\n✅ Football and Futsal Split by date successfully`);
+        try {
+            await testSport(page, 'futsal');    
+            await testSport(page, 'soccer');        
+            await deleteXlsxAndCsvBySport('sc');            
+            const mergedPath = mergeFootballAndFutsalFiles();
+            processSoccerFeed(mergedPath);
+            console.log(`\n✅ Football and Futsal files merged successfully: ${path.basename(mergedPath)}`);
+            splitFileByDate(mergedPath);
+            console.log(`\n✅ Football and Futsal Split by date successfully`);
+        } catch(err) {
+            console.log('Error in soccer and futsal test:', err.message);
+            console.log('FAILED');
+        }
     }); 
     
     test('Download Rugby League amd Rugby Union data, merge to rugby file', async ({ page }) => {
-        await testSport(page, 'rugbyLeague');                
-        await testSport(page, 'rugbyUnion');
-        await deleteXlsxAndCsvBySport('rugby');
-        const mergedPath = mergeRugbyFiles();
-        console.log(`\n✅ Rugby files merged successfully: ${path.basename(mergedPath)}`);
+        try {
+            await testSport(page, 'rugbyLeague');                
+            await testSport(page, 'rugbyUnion');
+            await deleteXlsxAndCsvBySport('rugby');
+            const mergedPath = mergeRugbyFiles();
+            console.log(`\n✅ Rugby files merged successfully: ${path.basename(mergedPath)}`);
+        } catch(err){
+            console.log('Error in rugby test:', err.message);
+            console.log('FAILED');
+        }
     });
 
 
     
     test('Download Other sports Football data', async ({ page }) => {
-        await testSport(page, 'americanFootball');
-        await testSport(page, 'aussieRules');
-        await testSport(page, 'baseball');
-        await testSport(page, 'basketball');
-        await testSport(page, 'cricket');
-        await testSport(page, 'hockey');
-        await testSport(page, 'waterPolo');
+        try {
+            await testSport(page, 'americanFootball');
+            await testSport(page, 'aussieRules');
+            await testSport(page, 'baseball');
+            await testSport(page, 'basketball');
+            await testSport(page, 'cricket');
+            await testSport(page, 'hockey');
+            await testSport(page, 'waterPolo');
+        } catch(err) {
+            console.log('Error in other sports test:', err.message);
+            console.log('FAILED');
+        }
     });
                 
     // Send all files in one email after ALL tests in this suite complete
@@ -471,6 +486,7 @@ test.describe('Betgenius Automation - All Sports', () => {
         } catch (error) {
             console.log(`\n⚠ Could not send email: ${error.message}`);
             console.log('   You can manually send all files by running: npm run email-send-all');
+            console.log('\nFAILED');
         }
     });
 });

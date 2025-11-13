@@ -6,6 +6,7 @@ const fs = require('fs');
 const sportsConfig = require('./sports-config.js');
 const config = require('./config.js');
 const cron = require('node-cron');
+const e = require('express');
 const app = express();
 const PORT = process.env.PORT || config.port;
 
@@ -14,7 +15,9 @@ app.use(cors());
 app.use(express.json());
 
 // Job tracking
-const jobs = new Map();
+let runningJob = {};
+let successfulJob = {};
+let failedJob = {};
 let jobIdCounter = 1;
 
 /**
@@ -24,21 +27,20 @@ let jobIdCounter = 1;
  * @returns {Object} Job information
  */
 function executeTest(testFile, jobType, sportName = null) {
+
     // Check if a job is already running
-    for (const [existingJobId, existingJob] of jobs) {
-        if (existingJob.status === 'running') {
-            return {
-                jobId: existingJobId,
-                status: 'busy',
-                message: 'Server is busy, there is a job already running',
-                runningJob: {
-                    id: existingJobId,
-                    type: existingJob.type,
-                    sport: existingJob.sport,
-                    startTime: existingJob.startTime
-                }
-            };
-        }
+    if (runningJob.status === 'running') {
+        return {
+            jobId: runningJob.jobId,
+            status: 'busy',
+            message: 'Server is busy, there is a job already running',
+            runningJob: {
+                id: runningJob.jobId,
+                type: runningJob.type,
+                sport: runningJob.sport,
+                startTime: runningJob.startTime
+            }
+        };
     }
 
     console.log(`\n🚀 Starting job: ${jobType} ${sportName} at ${new Date()}`);
@@ -55,14 +57,13 @@ function executeTest(testFile, jobType, sportName = null) {
         error: null
     };
     
-    jobs.set(jobId, job);
+    runningJob = job;
     
-    const playwrightProcess = spawn('npx', ['playwright', 'test', testFile], {
+    const playwrightProcess = spawn('npx', ['playwright', 'test', testFile, '--max-failures=1'], {
         cwd: __dirname,
         shell: true,
         env: { ...process.env }
     });
-    
     // Capture stdout
     playwrightProcess.stdout.on('data', (data) => {
         const output = data.toString();
@@ -79,7 +80,7 @@ function executeTest(testFile, jobType, sportName = null) {
     
     // Handle process completion
     playwrightProcess.on('close', (code) => {
-        job.status = code === 0 ? 'completed' : 'failed';
+       
         job.endTime = new Date().toISOString();
         job.exitCode = code;
         
@@ -98,10 +99,19 @@ function executeTest(testFile, jobType, sportName = null) {
         }
         
         console.log(`[${jobId}] Process exited with code ${code}`);
-        if (job.status === 'failed') {
-            console.log(`[${jobId}] Restarting job due to error...`);
-            executeTest(testFile, jobType, sportName);
+        if (code !== 0 || job.output.some(line => line.toLowerCase().includes('failed'))) {
+            job.status = 'failed';
+            failedJob = job;
+            successfulJob = {};
+            console.log(`[${jobId}] Job failed.`);
         }
+        else {
+            job.status = 'completed';
+            successfulJob = job;
+            failedJob = {};
+            console.log(`[${jobId}] Job completed successfully.`);
+        }
+        runningJob = {};
     });
     
     // Handle errors
@@ -110,9 +120,10 @@ function executeTest(testFile, jobType, sportName = null) {
         job.error = error.message;
         job.endTime = new Date().toISOString();
         console.error(`[${jobId}] Error:`, error);
-        // rerun job on error
-        console.log(`[${jobId}] Restarting job due to error...`);
-        executeTest(testFile, jobType, sportName);
+        
+        runningJob = {};
+        successfulJob = {};
+        failedJob = job;     
     });
     
     return {
@@ -155,11 +166,14 @@ app.get('/api/run/all', (req, res) => {
  * Get / - Return the information of the last job
  */
 app.get('/', (req, res) => {
-    try {
-        // get the last job
-        const lastJobId = Array.from(jobs.keys()).pop();
-        const result = jobs.get(lastJobId) || { message: 'No jobs have been run yet' };
-        res.json(result);
+    try {        
+        const jobs = {
+            running: runningJob,
+            successful: successfulJob,
+            failed: failedJob
+        };
+
+        res.json(jobs);
     } catch (error) {
         res.status(500).json({ 
             error: 'Failed to retrieve last job information', 
@@ -167,7 +181,6 @@ app.get('/', (req, res) => {
         });
     }
 });
-
 
 
 // Error handling middleware
@@ -196,6 +209,17 @@ cron.schedule('0 5 * * *', () => {
 }, {
   scheduled: true,
   timezone: "Asia/Ho_Chi_Minh" 
+});
+
+// schedule a cron job every minute for retry purpose
+cron.schedule('* * * * *', () => {
+    if(failedJob.status === 'failed') {
+        runningJob = {};
+        successfulJob = {};
+        console.log('Rerun failed job:', failedJob.id);
+        const testFile = 'tests/betgenius_all_sports.spec.js';
+        executeTest(testFile, 'all-sports', 'All Sports');  
+    }
 });
 
 // Start server
