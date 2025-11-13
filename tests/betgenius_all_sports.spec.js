@@ -69,6 +69,9 @@ async function testSport(page, sportKey) {
             console.log(`Found ${sport.sectionName} section`);
         } catch (error) {
             console.log(`${sport.sectionName} not found with exact match, trying alternative...`);
+            html_content = page.content()
+            htmlPath = path.join(config.downloadDir, `${sport.fileCode}.html`);
+            await fs.writeFile(htmlPath, html_content);
             
             // Try alternative name if exists
             if (sport.alternativeName) {
