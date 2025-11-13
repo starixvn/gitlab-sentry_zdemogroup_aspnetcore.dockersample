@@ -71,11 +71,17 @@ namespace WebSite1
                 var dataFilePath = Path.Combine(Directory.GetCurrentDirectory(), "data", "data.txt");
                 File.AppendAllText(dataFilePath, $"Hello, world! at {DateTimeOffset.Now}" + Environment.NewLine);
                 Console.WriteLine($"Data written to: {dataFilePath}");
+                var sharedDataFilePath = Path.Combine(Directory.GetCurrentDirectory(), "shared_data", "data.txt");
+                File.AppendAllText(sharedDataFilePath, $"Hello, world! at {DateTimeOffset.Now}" + Environment.NewLine);
+                Console.WriteLine($"Shared data written to: {sharedDataFilePath}");
                 Console.WriteLine("--------------------------------");
                 Console.WriteLine("----------------READING DATA FILE----------------");
                 var data = File.ReadAllText(dataFilePath);
+                var sharedData = File.ReadAllText(sharedDataFilePath);
                 Console.WriteLine($"Data read from: {dataFilePath}");
+                Console.WriteLine($"Shared data read from: {sharedDataFilePath}");
                 Console.WriteLine($"Data: {data}");
+                Console.WriteLine($"Shared data: {sharedData}");
                 Console.WriteLine("--------------------------------");
             }
             catch (Exception ex)
