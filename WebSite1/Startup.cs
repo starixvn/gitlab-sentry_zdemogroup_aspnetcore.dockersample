@@ -55,28 +55,33 @@ namespace WebSite1
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
-
             var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
-            Console.WriteLine("----------------APPSETTINGS----------------");
-            Console.WriteLine($"SentryDsn: {appSettings.SentryDsn}");
-            Console.WriteLine($"SentryEnvironment: {appSettings.SentryEnvironment}");
-            Console.WriteLine("----------------SHARED APPSETTINGS----------------");
-            Console.WriteLine($"Environment: {Configuration.GetSection("Environment").Value}");
-            Console.WriteLine($"ApplicationName: {Configuration.GetSection("ApplicationName").Value}");
-            Console.WriteLine($"Version: {Configuration.GetSection("Version").Value}");
-            Console.WriteLine("--------------------------------");
+            try
+            {
+                Console.WriteLine("----------------APPSETTINGS----------------");
+                Console.WriteLine($"SentryDsn: {appSettings.SentryDsn}");
+                Console.WriteLine($"SentryEnvironment: {appSettings.SentryEnvironment}");
+                Console.WriteLine("----------------SHARED APPSETTINGS----------------");
+                Console.WriteLine($"Environment: {Configuration.GetSection("Environment").Value}");
+                Console.WriteLine($"ApplicationName: {Configuration.GetSection("ApplicationName").Value}");
+                Console.WriteLine($"Version: {Configuration.GetSection("Version").Value}");
+                Console.WriteLine("--------------------------------");
 
-            Console.WriteLine("----------------WRITING DATA FILE----------------");
-            var dataFilePath = Path.Combine(Directory.GetCurrentDirectory(), "data", "data.txt");
-            File.AppendAllText(dataFilePath, $"Hello, world! at {DateTimeOffset.Now}" + Environment.NewLine);
-            Console.WriteLine($"Data written to: {dataFilePath}");
-            Console.WriteLine("--------------------------------");
-            Console.WriteLine("----------------READING DATA FILE----------------");
-            var data = File.ReadAllText(dataFilePath);
-            Console.WriteLine($"Data read from: {dataFilePath}");
-            Console.WriteLine($"Data: {data}");
-            Console.WriteLine("--------------------------------");
-
+                Console.WriteLine("----------------WRITING DATA FILE----------------");
+                var dataFilePath = Path.Combine(Directory.GetCurrentDirectory(), "data", "data.txt");
+                File.AppendAllText(dataFilePath, $"Hello, world! at {DateTimeOffset.Now}" + Environment.NewLine);
+                Console.WriteLine($"Data written to: {dataFilePath}");
+                Console.WriteLine("--------------------------------");
+                Console.WriteLine("----------------READING DATA FILE----------------");
+                var data = File.ReadAllText(dataFilePath);
+                Console.WriteLine($"Data read from: {dataFilePath}");
+                Console.WriteLine($"Data: {data}");
+                Console.WriteLine("--------------------------------");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
             LogManager
                  .SetDefaultLogCategory(appSettings.SentryEnvironment)
                  .Use(new List<ILogEngine>
