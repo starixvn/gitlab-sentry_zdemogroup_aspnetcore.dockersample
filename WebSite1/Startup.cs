@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Sentry;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -64,6 +65,18 @@ namespace WebSite1
             Console.WriteLine($"ApplicationName: {Configuration.GetSection("ApplicationName").Value}");
             Console.WriteLine($"Version: {Configuration.GetSection("Version").Value}");
             Console.WriteLine("--------------------------------");
+
+            Console.WriteLine("----------------WRITING DATA FILE----------------");
+            var dataFilePath = Path.Combine(Directory.GetCurrentDirectory(), "data", "data.txt");
+            File.AppendAllText(dataFilePath, $"Hello, world! at {DateTimeOffset.Now}" + Environment.NewLine);
+            Console.WriteLine($"Data written to: {dataFilePath}");
+            Console.WriteLine("--------------------------------");
+            Console.WriteLine("----------------READING DATA FILE----------------");
+            var data = File.ReadAllText(dataFilePath);
+            Console.WriteLine($"Data read from: {dataFilePath}");
+            Console.WriteLine($"Data: {data}");
+            Console.WriteLine("--------------------------------");
+
             LogManager
                  .SetDefaultLogCategory(appSettings.SentryEnvironment)
                  .Use(new List<ILogEngine>
