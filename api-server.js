@@ -161,6 +161,26 @@ app.get('/api/run/all', (req, res) => {
     }
 });
 
+app.get('/stop', (req, res) => {
+    try {
+        runningJob = {};
+        successfulJob = {};
+        failedJob = {};
+        const jobs = {
+            running: runningJob,
+            successful: successfulJob,
+            failed: failedJob
+        };
+
+        res.json(jobs);
+    } catch (error) {
+        res.status(500).json({
+            error: 'Failed to start all sports automation',
+            details: error.message
+        });
+    }
+});
+
 
 /**
  * Get / - Return the information of the last job
