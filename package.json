@@ -36,6 +36,7 @@
     "sport": "node run-single-sport.js"
   },
   "dependencies": {
+    "aws-sdk": "^2.1692.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "node-cron": "^4.2.1",

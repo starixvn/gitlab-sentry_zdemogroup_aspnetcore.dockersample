@@ -1,22 +1,35 @@
 /**
- * Email configuration
- * Edit this file with your email settings
+ * Email configuration for AWS SES SMTP
+ * Edit this file with your AWS SES SMTP settings
  */
 
 module.exports = {
     // Email service provider
-    // Options: 'gmail', 'outlook', 'yahoo', or use custom SMTP settings below
-    service: 'gmail', // Change to your email provider
-    
-    // Sender email credentials
-    auth: {
-        user: 'levi.vu@starixsoft.com', // Your email address
-        pass: 'jqvl yugq nwru kzoz'      // Your email password or app-specific password
+    service: null, // Use custom SMTP settings for AWS SES
+
+    // AWS SES SMTP settings
+    smtp: {
+        host: 'email-smtp.ap-southeast-1.amazonaws.com',
+        port: 587,
+        secure: false, // Use TLS
+        auth: {
+            user: 'AKIAYP7ZS6XEZU7JJY4N', // SMTP Username
+            pass: 'BEOs60yq/DaozptDT0XQFiYSZkaoC3poYXs2MNRqXj1C'  // SMTP Password
+        }
     },
+
+    // Sender email credentials (use SMTP credentials)
+    auth: {
+        user: 'AKIAYP7ZS6XEZU7JJY4N', // SMTP Username
+        pass: 'BEOs60yq/DaozptDT0XQFiYSZkaoC3poYXs2MNRqXj1C'  // SMTP Password
+    },
+
+    // Sender email address (must be verified in AWS SES)
+    sender: 'automail@starific.net', // Your verified sender email
     
     // Recipient email addresses (can be multiple)
     recipients: [
-        //'levi.vu@starixsoft.com, toby.phan@starixsoft.com, richard.truong@starixsoft.com, 7racychieng@gmail.com, rdrd33@gmail.com',
+        'levi.vu@starixsoft.com, toby.phan@starixsoft.com, richard.truong@starixsoft.com, 7racychieng@gmail.com, rdrd33@gmail.com',
         'jacob.phan@starixsoft.com'
         // 'recipient2@example.com',  // Add more recipients as needed
     ],

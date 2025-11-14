@@ -11,7 +11,7 @@ function createTransporter() {
     const config = {
         auth: emailConfig.auth
     };
-    
+
     // Use service if specified, otherwise use custom SMTP
     if (emailConfig.service) {
         config.service = emailConfig.service;
@@ -20,7 +20,7 @@ function createTransporter() {
         config.port = emailConfig.smtp.port;
         config.secure = emailConfig.smtp.secure;
     }
-    
+
     return nodemailer.createTransport(config);
 }
 
@@ -34,6 +34,7 @@ function fillTemplate(template, data) {
     }
     return result;
 }
+
 
 /**
  * Send email with XLSX file attachment
@@ -49,16 +50,20 @@ async function sendEmailWithFile(xlsxFilePath, csvFilePath = null, sportName = '
             console.log('ℹ Email sending is disabled in configuration');
             return { success: false, message: 'Email disabled in config' };
         }
-        
+
         // Validate email configuration
         if (!emailConfig.auth.user || !emailConfig.auth.pass) {
             throw new Error('Email credentials not configured. Please update email-config.js');
         }
-        
+
+        if (!emailConfig.sender) {
+            throw new Error('Sender email not configured. Please update email-config.js');
+        }
+
         if (!emailConfig.recipients || emailConfig.recipients.length === 0) {
             throw new Error('No recipients configured. Please update email-config.js');
         }
-        
+
         // Check if XLSX file exists
         if (!fs.existsSync(xlsxFilePath)) {
             throw new Error(`XLSX file not found: ${xlsxFilePath}`);
@@ -91,25 +96,26 @@ async function sendEmailWithFile(xlsxFilePath, csvFilePath = null, sportName = '
         
         // Create email options
         const mailOptions = {
-            from: emailConfig.auth.user,
+            from: emailConfig.sender,
             to: emailConfig.recipients.join(', '),
             subject: subject,
             text: body,
             attachments: attachments
         };
-        
+
         console.log('\n📧 Sending email...');
+        console.log(`  From: ${emailConfig.sender}`);
         console.log(`  To: ${emailConfig.recipients.join(', ')}`);
         console.log(`  Subject: ${subject}`);
         console.log(`  Attachments: ${attachments.map(a => a.filename).join(', ')}`);
-        
+
         // Create transporter and send email
         const transporter = createTransporter();
         const info = await transporter.sendMail(mailOptions);
-        
+
         console.log('✓ Email sent successfully!');
         console.log(`  Message ID: ${info.messageId}`);
-        
+
         return {
             success: true,
             messageId: info.messageId,
@@ -117,17 +123,22 @@ async function sendEmailWithFile(xlsxFilePath, csvFilePath = null, sportName = '
         };
         
     } catch (error) {
-        console.error('❌ Failed to send email:', error.message);
+        console.error('❌ Cannot send email:', error.message);
         
         // Provide helpful error messages
-        if (error.message.includes('Invalid login')) {
-            console.error('   Please check your email credentials in email-config.js');
-            console.error('   For Gmail, you need to use an App Password (see email-config.js for instructions)');
-        } else if (error.message.includes('EAUTH')) {
-            console.error('   Authentication failed. Please verify:');
-            console.error('   1. Email and password are correct');
-            console.error('   2. For Gmail: 2-Step Verification is enabled and you\'re using an App Password');
-            console.error('   3. For Outlook: Less secure app access is enabled if needed');
+        if (error.message.includes('Invalid login') || error.message.includes('Authentication failed')) {
+            console.error('   Please check your SMTP credentials in email-config.js');
+            console.error('   Verify your SMTP Username and Password are correct');
+        } else if (error.message.includes('ECONNECTION') || error.message.includes('ETIMEDOUT')) {
+            console.error('   Connection failed. Please verify:');
+            console.error('   1. SMTP server address and port are correct');
+            console.error('   2. Your network allows SMTP connections');
+            console.error('   3. AWS SES SMTP server is accessible');
+        } else if (error.message.includes('MessageRejected') || error.message.includes('Rejected')) {
+            console.error('   Email was rejected. Please verify:');
+            console.error('   1. Sender email is verified in AWS SES');
+            console.error('   2. You\'re not exceeding SES sending limits');
+            console.error('   3. All recipient emails are valid');
         }
         
         return {
@@ -155,16 +166,20 @@ async function sendBatchEmail(subject = null, directory = null) {
             console.log('ℹ Email sending is disabled in configuration');
             return { success: false, message: 'Email disabled in config' };
         }
-        
+
         // Validate email configuration
         if (!emailConfig.auth.user || !emailConfig.auth.pass) {
             throw new Error('Email credentials not configured. Please update email-config.js');
         }
-        
+
+        if (!emailConfig.sender) {
+            throw new Error('Sender email not configured. Please update email-config.js');
+        }
+
         if (!emailConfig.recipients || emailConfig.recipients.length === 0) {
             throw new Error('No recipients configured. Please update email-config.js');
         }
-        
+
         // Auto-discover XLSX files if not provided
         let validXlsxFiles = [];
             console.log(`\n📁 Auto-discovering XLSX files in: ${directory}`);
@@ -205,29 +220,30 @@ async function sendBatchEmail(subject = null, directory = null) {
         
         // Create email options
         const mailOptions = {
-            from: emailConfig.auth.user,
+            from: emailConfig.sender,
             to: emailConfig.recipients.join(', '),
             subject: subject,
             text: body,
             attachments: attachments
         };
-        
+
         console.log('\n📧 Sending batch email with all files...');
+        console.log(`  From: ${emailConfig.sender}`);
         console.log(`  To: ${emailConfig.recipients.join(', ')}`);
         console.log(`  Subject: ${subject}`);
         console.log(`  Attachments: ${attachments.length} file(s)`);
         attachments.forEach((att, idx) => {
             console.log(`    ${idx + 1}. ${att.filename}`);
         });
-        
+
         // Create transporter and send email
         const transporter = createTransporter();
         const info = await transporter.sendMail(mailOptions);
-        
+
         console.log('✓ Batch email sent successfully!');
         console.log(`  Message ID: ${info.messageId}`);
         console.log(`  Files attached: ${attachments.length}`);
-        
+
         return {
             success: true,
             messageId: info.messageId,
@@ -238,14 +254,19 @@ async function sendBatchEmail(subject = null, directory = null) {
         console.error('❌ Failed to send batch email:', error.message);
         
         // Provide helpful error messages
-        if (error.message.includes('Invalid login')) {
-            console.error('   Please check your email credentials in email-config.js');
-            console.error('   For Gmail, you need to use an App Password (see email-config.js for instructions)');
-        } else if (error.message.includes('EAUTH')) {
-            console.error('   Authentication failed. Please verify:');
-            console.error('   1. Email and password are correct');
-            console.error('   2. For Gmail: 2-Step Verification is enabled and you\'re using an App Password');
-            console.error('   3. For Outlook: Less secure app access is enabled if needed');
+        if (error.message.includes('Invalid login') || error.message.includes('Authentication failed')) {
+            console.error('   Please check your SMTP credentials in email-config.js');
+            console.error('   Verify your SMTP Username and Password are correct');
+        } else if (error.message.includes('ECONNECTION') || error.message.includes('ETIMEDOUT')) {
+            console.error('   Connection failed. Please verify:');
+            console.error('   1. SMTP server address and port are correct');
+            console.error('   2. Your network allows SMTP connections');
+            console.error('   3. AWS SES SMTP server is accessible');
+        } else if (error.message.includes('MessageRejected') || error.message.includes('Rejected')) {
+            console.error('   Email was rejected. Please verify:');
+            console.error('   1. Sender email is verified in AWS SES');
+            console.error('   2. You\'re not exceeding SES sending limits');
+            console.error('   3. All recipient emails are valid');
         }
         
         return {
@@ -330,7 +351,7 @@ Examples:
   node send-email.js                    # Send all today's files
   node send-email.js "C:\\BG\\BG-04-11-2024sc.xlsx"  # Send single file
 
-Note: Edit email-config.js to configure your email settings before using.
+Note: Edit email-config.js to configure your AWS SES SMTP settings before using.
         `);
     } else {
         // Send specific file
@@ -354,6 +375,7 @@ Note: Edit email-config.js to configure your email settings before using.
             });
     }
 }
+
 
 module.exports = { 
     sendEmailWithFile,
