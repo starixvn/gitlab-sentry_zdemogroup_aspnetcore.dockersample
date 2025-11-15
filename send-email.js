@@ -215,6 +215,7 @@ async function sendBatchEmail(subject = null, directory = null) {
                     filename: path.basename(file),
                     path: file
                 });
+                console.log(`  Attached file: ${path.basename(file)}`);
             });
         }
         

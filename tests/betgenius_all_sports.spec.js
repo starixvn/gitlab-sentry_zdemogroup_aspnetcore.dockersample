@@ -4,6 +4,7 @@ const path = require("path");
 const { processCsvFile } = require("../process_csv.js");
 const sportsConfig = require("../sports-config.js");
 const { sendTodayFilesEmail } = require("../send-email.js");
+const { correctOtherSportsFile, correctOtherSportsFiles } = require("../soccer_feed.js");
 const config = require("../config.js");
 const {
   deleteAllXlsxAndCsv,
@@ -537,6 +538,16 @@ test.describe("Betgenius Automation - All Sports", () => {
     console.log("\n🧹 Cleaning up all existing xlsx and csv files...");
     await deleteAllXlsxAndCsv();
     console.log("✅ Cleanup completed\n");
+  });
+
+  test.beforeEach(async ({ page }) => {
+    // Set viewport size
+    test.setTimeout(1200_000)
+  });
+
+  test.afterAll(async () => {
+    console.log("\nAll sports tests completed.");
+    correctOtherSportsFiles(['football','os','baseball','bk','cricket','fieldHockey','rugby','waterPolo']);
   });
 
   test("Download soccer data", async ({ page }) => {

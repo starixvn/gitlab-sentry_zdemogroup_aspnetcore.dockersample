@@ -263,8 +263,8 @@ cron.schedule(
   }
 );
 
-// schedule a cron job every minute for retry purpose
-cron.schedule("* * * * *", () => {
+// schedule a cron job every 5 minutes for retry purpose
+cron.schedule("*/5 * * * *", () => {
   if (failedJob.status === "failed") {
     if (failedJob.triedCount > 10) {
       return;

@@ -235,6 +235,7 @@ function splitFileByDate(xlsxFilePath) {
   }
 
   fs.unlinkSync(backupFilePath);
+  console.log(`✓ Deleted backup file: ${backupFilePath}`);
 }
 
 function getFilePathForDate(targetDate) {
@@ -246,9 +247,69 @@ function getFilePathForDate(targetDate) {
   return path.join(targetDir, `BG-${dateStr}sc.xlsx`);
 }
 
+function correctOtherSportsFiles(fileCodes) {
+  // get all files in the download directory
+  const files = fs.readdirSync(config.downloadDir);
+  const fileSuffixes = fileCodes.map(code => `${code}.xlsx`);
+  files.forEach((filepath) => {
+    const matched = fileSuffixes.some(suffix => filepath.endsWith(suffix));
+    if (matched) {
+      const fullPath = path.join(config.downloadDir, filepath);
+      correctOtherSportsFile(fullPath);
+    }
+  });
+}
+
+function correctOtherSportsFile(xlsxFilePath) {
+  // read the XLSX file
+  const workbook = XLSX.readFile(xlsxFilePath);
+  const sheetName = workbook.SheetNames[0];
+  const worksheet = workbook.Sheets[sheetName];
+
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
+  endOfWeek.setHours(11, 59, 59, 999);
+
+  const beginOfWeek = new Date(endOfWeek);
+  beginOfWeek.setDate(endOfWeek.getDate() - 7);
+  beginOfWeek.setHours(12, 0, 0, 0);
+
+   // Convert sheet to JSON array for processing
+  const data = XLSX.utils.sheet_to_json(worksheet, {
+    header: 1,
+    defval: "",
+  });
+
+  const correctedData = data.filter((row, index) => {
+    if (index === 0) return true; // keep header row
+    const timeValue = parseRowTime(row[4]); // Column E (index 4) - Time
+    return timeValue >= today && timeValue <= endOfWeek;
+  });
+
+  // write back corrected data
+  const newWorkbook = XLSX.utils.book_new();
+  const newWorksheet = XLSX.utils.aoa_to_sheet(correctedData);
+  
+  XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, sheetName);
+  const regex = /\d{2}-\d{2}-\d{4}/;
+  const dateString = `${beginOfWeek.getDate().toString().padStart(2, '0')}-${(beginOfWeek.getMonth() + 1).toString().padStart(2, '0')}-${beginOfWeek.getFullYear()}`;
+  const newFilePath = xlsxFilePath.replace(regex, dateString);
+
+  setXlsxColumnWidths(newWorksheet);
+  formatXlsxDateCells(newWorksheet);
+
+  fs.unlinkSync(xlsxFilePath);
+  XLSX.writeFile(newWorkbook, newFilePath);
+  
+  console.log(`✓ Deleted original file: ${xlsxFilePath}`);
+  console.log(`✓ Corrected other sports file: ${newFilePath}`);
+}
+
 if (require.main === module) {
   const xlsxFilePath = "C:\\BG\\BG-11-11-2025sco.xlsx";
   processSoccerFeed(xlsxFilePath);
 }
 
-module.exports = { processSoccerFeed, splitFileByDate };
+module.exports = { processSoccerFeed, splitFileByDate, correctOtherSportsFile, correctOtherSportsFiles };
