@@ -14,7 +14,7 @@ namespace WebSite1
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseUrls("http://0.0.0.0:5000");
+                    webBuilder.UseUrls("http://0.0.0.0:5000", "http://0.0.0.0:5001");
                     webBuilder.UseStartup<Startup>();
                 });
     }
