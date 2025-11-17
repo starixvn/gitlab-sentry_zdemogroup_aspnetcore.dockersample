@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: support_multi_pvcs
+    ref: support_multi_ports
     file: nexcel.gitlab-ci.yml
