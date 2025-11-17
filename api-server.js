@@ -147,9 +147,8 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
 }
 
 async function sendEmailAfterAllTests(job) {
-  
   let text = "\n\n📧 Sending all downloaded files in one email...";
-  
+
   try {
     const emailResult = await sendTodayFilesEmail();
     if (emailResult.success) {
@@ -159,7 +158,9 @@ async function sendEmailAfterAllTests(job) {
       console.log(text);
     }
   } catch (error) {
-    text += `\n⚠ Could not send email: ${error.message}` + "   You can manually send all files by running: npm run email-send-all";
+    text +=
+      `\n⚠ Could not send email: ${error.message}` +
+      "   You can manually send all files by running: npm run email-send-all";
     console.log(text);
     console.log("\nFAILED");
   }
@@ -251,7 +252,7 @@ app.use((req, res) => {
 
 // Set timezone for job to Asia/Ho_Chi_Minh (GMT+7)
 cron.schedule(
-  "0 5 * * *",
+  "50 4 * * *",
   () => {
     console.log("Run job daily at 5:00 AM GMT+7");
     const testFile = "tests/betgenius_all_sports.spec.js";

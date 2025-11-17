@@ -146,43 +146,8 @@ async function testSport(page, sportKey) {
     let downloadDays = [];
     let description = "";
 
-    if (sport.useDynamicRange) {
-      // Soccer uses day-based logic
-      switch (dayOfWeek) {
-        case 1: // Monday - download to Friday (5 days)
-          downloadDays = [1, 2, 3, 4, 5];
-          description = "Today (Monday) to Friday (5 days)";
-          break;
-        case 2: // Tuesday - download to Saturday (5 days)
-          downloadDays = [2, 3, 4, 5, 6];
-          description = "Today (Tuesday) to Saturday (5 days)";
-          break;
-        case 3: // Wednesday - download to Sunday (5 days)
-          downloadDays = [3, 4, 5, 6, 0];
-          description = "Today (Wednesday) to Sunday (5 days)";
-          break;
-        case 4: // Thursday - download to Saturday (3 days)
-          downloadDays = [4, 5, 6];
-          description = "Today (Thursday) to Saturday (3 days)";
-          break;
-        case 5: // Friday - download to Monday (4 days)
-          downloadDays = [5, 6, 0, 1];
-          description = "Today (Friday) to Monday (4 days)";
-          break;
-        case 6: // Saturday - download to Wednesday (5 days)
-          downloadDays = [6, 0, 1, 2, 3];
-          description = "Today (Saturday) to Wednesday (5 days)";
-          break;
-        case 0: // Sunday - download to Thursday (4 days)
-          downloadDays = [0, 1, 2, 3];
-          description = "Today (Sunday) to Thursday (4 days)";
-          break;
-      }
-    } else {
-      // All other sports: 1 week (7 days)
-      downloadDays = [0, 1, 2, 3, 4, 5, 6];
-      description = "Today to +7 days (1 week)";
-    }
+    downloadDays = [-1, 0, 1, 2, 3, 4, 5, 6];
+    description = "Yesterday to +7 days (1 week)";
 
     console.log(`Download range: ${description}`);
 
@@ -224,36 +189,8 @@ async function testSport(page, sportKey) {
       ];
 
       let endDay;
-      if (sport.useDynamicRange) {
-        // Soccer uses day-based logic
-        switch (dayOfWeek) {
-          case 1:
-            endDay = "Fri";
-            break;
-          case 2:
-            endDay = "Sat";
-            break;
-          case 3:
-            endDay = "Sun";
-            break;
-          case 4:
-            endDay = "Sat";
-            break;
-          case 5:
-            endDay = "Mon";
-            break;
-          case 6:
-            endDay = "Wed";
-            break;
-          case 0:
-            endDay = "Thu";
-            break;
-        }
-      } else {
-        // Other sports: 1 week from today
-        const endDayIndex = (dayOfWeek + 7) % 7;
-        endDay = dayAbbreviations[endDayIndex];
-      }
+      const endDayIndex = (dayOfWeek + 7) % 7;
+      endDay = dayAbbreviations[endDayIndex];
 
       console.log(`Setting timeline range: ${description}`);
 
@@ -494,7 +431,7 @@ async function testSport(page, sportKey) {
   }
 }
 
-async function testSoccerSports(page) {
+async function testSoccerSports(page) {  
   await testSport(page, "futsal");
   await testSport(page, "soccer");
   await deleteXlsxAndCsvBySport("sc");
@@ -508,7 +445,7 @@ async function testSoccerSports(page) {
   splitFileByDate(mergedSoccerPath);
   console.log(`\n✅ Football and Futsal Split by date successfully`);
 }
-async function testRugbySports(page) {
+async function testRugbySports(page) {  
   await testSport(page, "rugbyLeague");
   await testSport(page, "rugbyUnion");
   await deleteXlsxAndCsvBySport("rugby");
@@ -517,6 +454,7 @@ async function testRugbySports(page) {
     `\n✅ Rugby files merged successfully: ${path.basename(mergedPath)}`
   );
 }
+
 async function testOtherSports(page) {
   await testSport(page, "americanFootball");
   await testSport(page, "aussieRules");
@@ -558,6 +496,7 @@ test.describe("Betgenius Automation - All Sports", () => {
       console.log("\nFAILED");
     }
   });
+  
   test("Download rugby data", async ({ page }) => {
     try {
       await testRugbySports(page);
@@ -566,6 +505,7 @@ test.describe("Betgenius Automation - All Sports", () => {
       console.log("\nFAILED");
     }
   });
+
   test("Download other sports data", async ({ page }) => {
     try {
       await testOtherSports(page);
@@ -574,4 +514,5 @@ test.describe("Betgenius Automation - All Sports", () => {
       console.log("\nFAILED");
     }
   });
+  
 });

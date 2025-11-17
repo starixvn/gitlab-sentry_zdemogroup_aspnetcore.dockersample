@@ -268,43 +268,72 @@ function correctOtherSportsFile(xlsxFilePath) {
 
   const today = new Date();
   today.setHours(12, 0, 0, 0);
-  const endOfWeek = new Date(today);
-  endOfWeek.setDate(today.getDate() + (7 - today.getDay()));
-  endOfWeek.setHours(11, 59, 59, 999);
 
-  const beginOfWeek = new Date(endOfWeek);
-  beginOfWeek.setDate(endOfWeek.getDate() - 7);
-  beginOfWeek.setHours(12, 0, 0, 0);
+  const beginOfWeek1 = new Date(today);
+  beginOfWeek1.setDate(today.getDate() - today.getDay());
+  beginOfWeek1.setHours(12, 0, 0, 0);
 
+  const endOfWeek1 = new Date(beginOfWeek1);
+  endOfWeek1.setDate(beginOfWeek1.getDate() + 7);
+  endOfWeek1.setHours(11, 59, 59, 999);
+
+  const beginOfWeek2 = new Date(beginOfWeek1);
+  beginOfWeek2.setDate(beginOfWeek1.getDate() + 7);
+  
+  const endOfWeek2 = new Date(endOfWeek1);
+  endOfWeek2.setDate(endOfWeek1.getDate() + 7);
+  
+  console.log(`Begin of Week 1: ${beginOfWeek1}`);
+  console.log(`End of Week 1: ${endOfWeek1}`);
+  console.log(`Begin of Week 2: ${beginOfWeek2}`);
+  console.log(`End of Week 2: ${endOfWeek2}`);
+  
    // Convert sheet to JSON array for processing
   const data = XLSX.utils.sheet_to_json(worksheet, {
     header: 1,
     defval: "",
   });
 
-  const correctedData = data.filter((row, index) => {
+  const correctedDataWeek1 = data.filter((row, index) => {
     if (index === 0) return true; // keep header row
     const timeValue = parseRowTime(row[4]); // Column E (index 4) - Time
-    return timeValue >= today && timeValue <= endOfWeek;
+    return timeValue >= today && timeValue <= endOfWeek1;
   });
 
-  // write back corrected data
-  const newWorkbook = XLSX.utils.book_new();
-  const newWorksheet = XLSX.utils.aoa_to_sheet(correctedData);
-  
-  XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, sheetName);
-  const regex = /\d{2}-\d{2}-\d{4}/;
-  const dateString = `${beginOfWeek.getDate().toString().padStart(2, '0')}-${(beginOfWeek.getMonth() + 1).toString().padStart(2, '0')}-${beginOfWeek.getFullYear()}`;
-  const newFilePath = xlsxFilePath.replace(regex, dateString);
+  const correctDataWeek2 = data.filter((row, index) => {
+    if (index === 0) return true; // keep header row
+    const timeValue = parseRowTime(row[4]); // Column E (index 4) - Time
+    return timeValue >= beginOfWeek2 && timeValue <= endOfWeek2;  
+  });
 
-  setXlsxColumnWidths(newWorksheet);
-  formatXlsxDateCells(newWorksheet);
+  const regex = /\d{2}-\d{2}-\d{4}/;
+  const dateStringWeek1 = `${beginOfWeek1.getDate().toString().padStart(2, '0')}-${(beginOfWeek1.getMonth() + 1).toString().padStart(2, '0')}-${beginOfWeek1.getFullYear()}`;
+  const newFilePathWeek1 = xlsxFilePath.replace(regex, dateStringWeek1);
+
+  const dateStringWeek2 = `${beginOfWeek2.getDate().toString().padStart(2, '0')}-${(beginOfWeek2.getMonth() + 1).toString().padStart(2, '0')}-${beginOfWeek2.getFullYear()}`;
+  const newFilePathWeek2 = xlsxFilePath.replace(regex, dateStringWeek2);
 
   fs.unlinkSync(xlsxFilePath);
-  XLSX.writeFile(newWorkbook, newFilePath);
+
+  // write back corrected data for week 1
+  const newWorkbook1 = XLSX.utils.book_new();
+  const newWorksheet1 = XLSX.utils.aoa_to_sheet(correctedDataWeek1);  
+  XLSX.utils.book_append_sheet(newWorkbook1, newWorksheet1, sheetName);
+  
+  setXlsxColumnWidths(newWorksheet1);
+  formatXlsxDateCells(newWorksheet1);  
+  XLSX.writeFile(newWorkbook1, newFilePathWeek1);
+
+  // write back corrected data for week 2
+  const newWorkbook2 = XLSX.utils.book_new();
+  const newWorksheet2 = XLSX.utils.aoa_to_sheet(correctDataWeek2);  
+  XLSX.utils.book_append_sheet(newWorkbook2, newWorksheet2, sheetName);
+  setXlsxColumnWidths(newWorksheet2);
+  formatXlsxDateCells(newWorksheet2);
+  XLSX.writeFile(newWorkbook2, newFilePathWeek2);
   
   console.log(`✓ Deleted original file: ${xlsxFilePath}`);
-  console.log(`✓ Corrected other sports file: ${newFilePath}`);
+  console.log(`✓ Corrected other sports file: ${newFilePathWeek1} and ${newFilePathWeek2}`);
 }
 
 if (require.main === module) {

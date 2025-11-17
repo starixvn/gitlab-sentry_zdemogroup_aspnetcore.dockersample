@@ -4,14 +4,7 @@ const path = require("path");
 const config = require("./config.js");
 
 function fileExists(filePath) {
-    try {
-        // Sử dụng fs.accessSync() thay vì await fs.access()
-        fs.accessSync(filePath, constants.F_OK);
-        return true;
-    } catch (e) {
-        // Nếu có lỗi (thường là ENOENT - File not found), trả về false
-        return false;
-    }
+    return fs.existsSync(filePath);
 }
 
 /**
@@ -240,6 +233,13 @@ function mergeRugbyFilesInCaseFileNotFound(rugbyLeaguePath, rugbyUnionPath, merg
     const leagueExists = fileExists(rugbyLeaguePath);
     const unionExists = fileExists(rugbyUnionPath);
 
+    console.log(`======================================\n`);
+    console.log(`league File: ${rugbyLeaguePath}`);
+    console.log(`Union File: ${rugbyUnionPath}\n`);
+    console.log(`Merged File: ${mergedFilePath}\n`);
+    console.log(`Rugby League exists: ${leagueExists}`);
+    console.log(`Rugby Union exists: ${unionExists}`);
+    console.log(`======================================\n`);
     // Case 1: Both files exist - proceed to merge
     if (leagueExists && unionExists) {
         return true
@@ -263,7 +263,8 @@ function mergeRugbyFilesInCaseFileNotFound(rugbyLeaguePath, rugbyUnionPath, merg
     }
     // Copy the existing file to the merged file path
     fs.copyFileSync(sourceFilePath, mergedFilePath);
-
+    fs.unlinkSync(sourceFilePath);
+    console.log(`\n✓ Single rugby file created: ${path.basename(mergedFilePath)}`);
     return false;
 }
 
