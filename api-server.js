@@ -222,6 +222,7 @@ app.get("/", (req, res) => {
       running: runningJob,
       successful: successfulJob,
       failed: failedJob,
+      now: new Date().toISOString(),
     };
 
     res.json(jobs);
@@ -252,11 +253,13 @@ app.use((req, res) => {
 
 // Set timezone for job to Asia/Ho_Chi_Minh (GMT+7)
 cron.schedule(
-  "50 4 * * *",
-  () => {
-    console.log("Run job daily at 5:00 AM GMT+7");
+  // Cron String: "50 4,5,6,7,8 * * *"
+  // Purpose: run at minute 50 of hours 4, 5, 6, 7, and 8
+  "50 4,5,6,7,8 * * *",
+  () => {    
+    console.log(`Run job daily at ${new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })}`);
     const testFile = "tests/betgenius_all_sports.spec.js";
-    const result = executeTest(testFile, "all-sports", "All Sports");
+    executeTest(testFile, "all-sports", "All Sports");
   },
   {
     scheduled: true,

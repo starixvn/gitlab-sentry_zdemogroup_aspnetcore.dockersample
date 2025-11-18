@@ -3,11 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const { processCsvFile } = require("../process_csv.js");
 const sportsConfig = require("../sports-config.js");
-const { sendTodayFilesEmail } = require("../send-email.js");
-const {
-  correctOtherSportsFile,
-  correctOtherSportsFiles,
-} = require("../soccer_feed.js");
+const { correctOtherSportsFiles } = require("../soccer_feed.js");
 const config = require("../config.js");
 const {
   deleteAllXlsxAndCsv,
@@ -434,9 +430,7 @@ async function testSport(page, sportKey) {
   }
 }
 
-async function testSoccerSports(page) {
-  await testSport(page, "futsal");
-  await testSport(page, "soccer");
+async function mergeSoccerSports() {
   await deleteXlsxAndCsvBySport("sc");
   const mergedSoccerPath = mergeFootballAndFutsalFiles();
   processSoccerFeed(mergedSoccerPath);
@@ -448,9 +442,7 @@ async function testSoccerSports(page) {
   splitFileByDate(mergedSoccerPath);
   console.log(`\n✅ Football and Futsal Split by date successfully`);
 }
-async function testRugbySports(page) {
-  await testSport(page, "rugbyLeague");
-  await testSport(page, "rugbyUnion");
+async function mergeRugbySports() {
   await deleteXlsxAndCsvBySport("rugby");
   const mergedPath = mergeRugbyFiles();
   console.log(
@@ -487,12 +479,17 @@ test.describe("Betgenius Automation - All Sports", () => {
       const url = request.url();
       if (url.includes("DataServices.EventViewer.WebService/events/")) {
         console.log(">> Request URL:", request.url());
-      }      
+      }
     });
   });
 
   test.afterAll(async () => {
     console.log("\nAll sports tests completed.");
+    console.log("Merge soccer files...");
+    await mergeSoccerSports();
+    console.log("Merge rugby files...");
+    await mergeRugbySports();
+    console.log("Correct other sports files...");
     correctOtherSportsFiles([
       "football",
       "os",
@@ -505,30 +502,38 @@ test.describe("Betgenius Automation - All Sports", () => {
     ]);
   });
 
+  test("Download futsal data", async ({ page }) => {
+    await testSport(page, "futsal");
+  });
   test("Download soccer data", async ({ page }) => {
-    try {
-      await testSoccerSports(page);
-    } catch (error) {
-      console.error("Error in All Sports test:", error);
-      console.log("\nFAILED");
-    }
+    await testSport(page, "soccer");
+  });
+  test("Download rugbyLeague data", async ({ page }) => {
+    await testSport(page, "rugbyLeague");
+  });
+  test("Download rugbyUnion data", async ({ page }) => {
+    await testSport(page, "rugbyUnion");
+  });
+  test("Download americanFootball data", async ({ page }) => {
+    await testSport(page, "americanFootball");
   });
 
-  test("Download rugby data", async ({ page }) => {
-    try {
-      await testRugbySports(page);
-    } catch (error) {
-      console.error("Error in Rugby Sports test:", error);
-      console.log("\nFAILED");
-    }
+  test("Download aussieRules data", async ({ page }) => {
+    await testSport(page, "aussieRules");
   });
-
-  test("Download other sports data", async ({ page }) => {
-    try {
-      await testOtherSports(page);
-    } catch (error) {
-      console.error("Error in Other Sports test:", error);
-      console.log("\nFAILED");
-    }
+  test("Download baseball data", async ({ page }) => {
+    await testSport(page, "baseball");
+  });
+  test("Download basketball data", async ({ page }) => {
+    await testSport(page, "basketball");
+  });
+  test("Download cricket data", async ({ page }) => {
+    await testSport(page, "cricket");
+  });
+  test("Download hockey data", async ({ page }) => {
+    await testSport(page, "hockey");
+  });
+  test("Download waterPolo data", async ({ page }) => {
+    await testSport(page, "waterPolo");
   });
 });
