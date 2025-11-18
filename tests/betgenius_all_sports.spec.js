@@ -4,7 +4,10 @@ const path = require("path");
 const { processCsvFile } = require("../process_csv.js");
 const sportsConfig = require("../sports-config.js");
 const { sendTodayFilesEmail } = require("../send-email.js");
-const { correctOtherSportsFile, correctOtherSportsFiles } = require("../soccer_feed.js");
+const {
+  correctOtherSportsFile,
+  correctOtherSportsFiles,
+} = require("../soccer_feed.js");
 const config = require("../config.js");
 const {
   deleteAllXlsxAndCsv,
@@ -431,7 +434,7 @@ async function testSport(page, sportKey) {
   }
 }
 
-async function testSoccerSports(page) {  
+async function testSoccerSports(page) {
   await testSport(page, "futsal");
   await testSport(page, "soccer");
   await deleteXlsxAndCsvBySport("sc");
@@ -445,7 +448,7 @@ async function testSoccerSports(page) {
   splitFileByDate(mergedSoccerPath);
   console.log(`\n✅ Football and Futsal Split by date successfully`);
 }
-async function testRugbySports(page) {  
+async function testRugbySports(page) {
   await testSport(page, "rugbyLeague");
   await testSport(page, "rugbyUnion");
   await deleteXlsxAndCsvBySport("rugby");
@@ -466,7 +469,6 @@ async function testOtherSports(page) {
   console.log(`\n✅ All Other sports automation completed successfully!`);
 }
 
-
 // Create individual test for each sport
 test.describe("Betgenius Automation - All Sports", () => {
   // Configure to run sequentially to ensure email sends only once
@@ -480,12 +482,27 @@ test.describe("Betgenius Automation - All Sports", () => {
 
   test.beforeEach(async ({ page }) => {
     // Set viewport size
-    test.setTimeout(1200_000)
+    test.setTimeout(1200_000);
+    page.on("request", (request) => {
+      const url = request.url();
+      if (url.includes("DataServices.EventViewer.WebService/events/")) {
+        console.log(">> Request URL:", request.url());
+      }      
+    });
   });
 
   test.afterAll(async () => {
     console.log("\nAll sports tests completed.");
-    correctOtherSportsFiles(['football','os','baseball','bk','cricket','fieldHockey','rugby','waterPolo']);
+    correctOtherSportsFiles([
+      "football",
+      "os",
+      "baseball",
+      "bk",
+      "cricket",
+      "fieldHockey",
+      "rugby",
+      "waterPolo",
+    ]);
   });
 
   test("Download soccer data", async ({ page }) => {
@@ -496,7 +513,7 @@ test.describe("Betgenius Automation - All Sports", () => {
       console.log("\nFAILED");
     }
   });
-  
+
   test("Download rugby data", async ({ page }) => {
     try {
       await testRugbySports(page);
@@ -514,5 +531,4 @@ test.describe("Betgenius Automation - All Sports", () => {
       console.log("\nFAILED");
     }
   });
-  
 });

@@ -27,6 +27,7 @@ RUN apt-get update && apt-get install -y \
     libxkbcommon0 \
     libxrandr2 \
     xdg-utils \
+    tzdata \
     && rm -rf /var/lib/apt/lists/*
 
 # Set timezone to Asia/Taipei
@@ -58,7 +59,6 @@ ENV DOWNLOAD_DIR=/app/downloads
 # LOCAL
 ENV HTTP_PROXY="http://proxysqd.nexdev.net:3128/" 
 ENV HTTPS_PROXY="http://proxysqd.nexdev.net:3128/"
-
 
 # Default command - can be overridden
 CMD ["npm", "run", "api"]
