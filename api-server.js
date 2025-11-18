@@ -21,6 +21,7 @@ let runningJob = {};
 let successfulJob = {};
 let failedJob = {};
 let jobIdCounter = 1;
+let allJobs = [];
 
 /**
  * Execute Playwright test
@@ -124,6 +125,7 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
       console.log(`[${jobId}] Job completed successfully.`);
     }
     runningJob = {};
+    allJobs.push({ ...job });
   });
 
   // Handle errors
@@ -136,6 +138,7 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
     runningJob = {};
     successfulJob = {};
     failedJob = job;
+    allJobs.push({ ...job });
   });
 
   return {
@@ -198,10 +201,12 @@ app.get("/stop", (req, res) => {
     runningJob = {};
     successfulJob = {};
     failedJob = {};
+    allJobs = [];
     const jobs = {
       running: runningJob,
       successful: successfulJob,
       failed: failedJob,
+      all: allJobs,
     };
 
     res.json(jobs);
@@ -256,8 +261,12 @@ cron.schedule(
   // Cron String: "50 4,5,6,7,8 * * *"
   // Purpose: run at minute 50 of hours 4, 5, 6, 7, and 8
   "50 4,5,6,7,8 * * *",
-  () => {    
-    console.log(`Run job daily at ${new Date().toLocaleString("en-US", { timeZone: "Asia/Ho_Chi_Minh" })}`);
+  () => {
+    console.log(
+      `Run job daily at ${new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Ho_Chi_Minh",
+      })}`
+    );
     const testFile = "tests/betgenius_all_sports.spec.js";
     executeTest(testFile, "all-sports", "All Sports");
   },

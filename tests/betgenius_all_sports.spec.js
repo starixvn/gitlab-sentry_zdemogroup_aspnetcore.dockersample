@@ -450,17 +450,6 @@ async function mergeRugbySports() {
   );
 }
 
-async function testOtherSports(page) {
-  await testSport(page, "americanFootball");
-  await testSport(page, "aussieRules");
-  await testSport(page, "baseball");
-  await testSport(page, "basketball");
-  await testSport(page, "cricket");
-  await testSport(page, "hockey");
-  await testSport(page, "waterPolo");
-  console.log(`\n✅ All Other sports automation completed successfully!`);
-}
-
 // Create individual test for each sport
 test.describe("Betgenius Automation - All Sports", () => {
   // Configure to run sequentially to ensure email sends only once
