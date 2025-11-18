@@ -7,6 +7,7 @@ module.exports = {
   },
   infoSite: {
     url: "https://infosite.klt2p.oneback.net",
+    uploadUrl: "https://generalexcelupload.klt2p.oneback.net/GeneralExcelUpload/UploadServiceExcel",
     username: "nexcel1",
     password: "1234aa",
   },
