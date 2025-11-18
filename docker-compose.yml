@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  bg-auto-download:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: bg-auto-download
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./downloads:/app/downloads
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=production
+      - DOWNLOAD_DIR=/app/downloads
+      - HTTP_PROXY=http://proxysqd.nexdev.net:3128/
+      - HTTPS_PROXY=http://proxysqd.nexdev.net:3128/
+      - PORT=5000
+    restart: unless-stopped
+    networks:
+      - bg-network
+
+networks:
+  bg-network:
+    driver: bridge
