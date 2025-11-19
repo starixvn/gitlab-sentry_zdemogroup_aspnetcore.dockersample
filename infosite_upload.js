@@ -10,22 +10,6 @@ const path = require('path');
 const jar = new CookieJar();
 const client = wrapper(axios.create({ jar }));
 
-async function login() {
-    const url = new URL(`${config.infoSite.url}/info_backend/login/proc`);
-    const username = config.infoSite.username;
-    const password = config.infoSite.password;
-    const payload = `username=${username}&password=${password}`;
-    
-    const response = await client.post (url.toString(), payload, {
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-    });
-
-    const cookies = await jar.getCookies(url.toString());
-    console.log("Cookies after login:", cookies);
-}
-
 async function uploadFile(filePath) {
     const url = new URL(`${config.infoSite.uploadUrl}`);        
     

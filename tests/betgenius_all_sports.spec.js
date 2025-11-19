@@ -450,6 +450,48 @@ async function mergeRugbySports() {
   );
 }
 
+function getFormattedDate(date) {
+  const pad = (num) => num.toString().padStart(2, "0");
+  const year = date.getUTCFullYear();
+  const month = pad(date.getUTCMonth() + 1);
+  const day = pad(date.getUTCDate());
+
+  return `${year}-${month}-${day}`;
+}
+
+async function overrideEventRequest(page) {
+  const yesterday = new Date();
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const startDate = `${getFormattedDate(yesterday)}T23:55:07`;
+  const futureDate = new Date();
+  futureDate.setUTCDate(futureDate.getUTCDate() + 16);
+  const endDate = `${getFormattedDate(futureDate)}T23:59:59`; // YYYY-MM-DDT23:59:59
+
+  const apiUrlPattern =
+    /^(https:\/\/dataservices\.betgenius\.com\/DataServices\.EventViewer\.WebService\/events\/)(.*\/.*)(\?.*)$/i;
+  await page.route(apiUrlPattern, (route) => {
+    const originalUrl = route.request().url();
+
+    // Check if the URL matches the expected pattern
+    const match = originalUrl.match(apiUrlPattern);
+    if (!match) {
+      // If it doesn't match, continue with the original request (safe fallback)
+      route.continue();
+      return;
+    }
+
+    const baseUrl = match[1];
+    const queryParams = match[3];
+
+    const newUrl = `${baseUrl}${startDate}/${endDate}${queryParams}`;
+
+    console.log(`[ROUTE] Override URL: ${originalUrl}`);
+    console.log(`[ROUTE] New URL: ${newUrl}`);
+
+    // Override URL and continue request
+    route.continue({ url: newUrl });
+  });
+}
 // Create individual test for each sport
 test.describe("Betgenius Automation - All Sports", () => {
   // Configure to run sequentially to ensure email sends only once
@@ -464,9 +506,11 @@ test.describe("Betgenius Automation - All Sports", () => {
   test.beforeEach(async ({ page }) => {
     // Set viewport size
     test.setTimeout(1200_000);
+    await overrideEventRequest(page);
+
     page.on("request", (request) => {
       const url = request.url();
-      if (url.includes("DataServices.EventViewer.WebService/events/")) {
+      if (url.includes("DataServices.EventViewer.WebService/events")) {
         console.log(">> Request URL:", request.url());
       }
     });

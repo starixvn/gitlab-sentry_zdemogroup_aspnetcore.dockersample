@@ -212,7 +212,7 @@ function splitFileByDate(xlsxFilePath) {
   
   // Get today
   const today = new Date();
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 14; i++) {
     const targetDate = new Date(today);
     targetDate.setDate(today.getDate() + i);
     const filteredData = filterDataByDate(data, targetDate);

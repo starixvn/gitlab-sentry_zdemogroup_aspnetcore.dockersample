@@ -9,6 +9,7 @@ const config = require("./config.js");
 const cron = require("node-cron");
 const e = require("express");
 const { text } = require("stream/consumers");
+const { all } = require("axios");
 const app = express();
 const PORT = process.env.PORT || config.port;
 
@@ -21,7 +22,6 @@ let runningJob = {};
 let successfulJob = {};
 let failedJob = {};
 let jobIdCounter = 1;
-let allJobs = [];
 
 /**
  * Execute Playwright test
@@ -124,8 +124,7 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
 
       console.log(`[${jobId}] Job completed successfully.`);
     }
-    runningJob = {};
-    allJobs.push({ ...job });
+    runningJob = {};    
   });
 
   // Handle errors
@@ -137,15 +136,14 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
 
     runningJob = {};
     successfulJob = {};
-    failedJob = job;
-    allJobs.push({ ...job });
+    failedJob = job;    
   });
 
   return {
     jobId,
     status: "started",
     message: `Job ${jobId} started for ${jobType}`,
-    startTime: timestamp,
+    startTime: timestamp,    
   };
 }
 
@@ -200,13 +198,11 @@ app.get("/stop", (req, res) => {
   try {
     runningJob = {};
     successfulJob = {};
-    failedJob = {};
-    allJobs = [];
+    failedJob = {};    
     const jobs = {
       running: runningJob,
       successful: successfulJob,
       failed: failedJob,
-      all: allJobs,
     };
 
     res.json(jobs);
@@ -226,8 +222,8 @@ app.get("/", (req, res) => {
     const jobs = {
       running: runningJob,
       successful: successfulJob,
-      failed: failedJob,
-      now: new Date().toISOString(),
+      failed: failedJob,      
+      now: new Date().toLocaleString(),
     };
 
     res.json(jobs);
