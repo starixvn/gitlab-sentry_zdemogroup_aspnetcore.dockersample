@@ -252,7 +252,7 @@ app.use((req, res) => {
 cron.schedule(
   // Cron String: "50 4,5,6,7,8 * * *"
   // Purpose: run at minute 50 of hours 4, 5, 6, 7, and 8
-  "55 4 * * *",
+  "30 4 * * *",
   () => {
     console.log(
       `Run job daily at ${new Date().toLocaleString("en-US", {
