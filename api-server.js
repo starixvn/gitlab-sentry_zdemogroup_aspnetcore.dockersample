@@ -1,15 +1,11 @@
 const express = require("express");
 const cors = require("cors");
 const { spawn } = require("child_process");
-const path = require("path");
 const fs = require("fs");
-const sportsConfig = require("./sports-config.js");
 const { sendTodayFilesEmail } = require("./send-email.js");
 const config = require("./config.js");
 const cron = require("node-cron");
-const e = require("express");
-const { text } = require("stream/consumers");
-const { all } = require("axios");
+
 const app = express();
 const PORT = process.env.PORT || config.port;
 
@@ -256,7 +252,7 @@ app.use((req, res) => {
 cron.schedule(
   // Cron String: "50 4,5,6,7,8 * * *"
   // Purpose: run at minute 50 of hours 4, 5, 6, 7, and 8
-  "50 4,5,6,7,8 * * *",
+  "55 4 * * *",
   () => {
     console.log(
       `Run job daily at ${new Date().toLocaleString("en-US", {

@@ -23,7 +23,7 @@ async function uploadFile(filePath) {
         contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // Giả định là file Excel (.xlsx)
     });
     try {
-        // 5. Cấu hình request header
+        // 5. Setup request header
         const response = await axios.post(url, form, {
             headers: {                
                 ...form.getHeaders(),                                 

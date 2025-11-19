@@ -83,7 +83,7 @@ async function processCsvFile(filePath, sportValue = 'Soccer', addFutsalSuffix =
             const trimmedColumn = firstColumn.replace(/^"/, '').replace(/"$/, '');
             
             // Check if it doesn't already end with "Futsal"
-            if (!trimmedColumn.endsWith('Futsal')) {
+            if (!trimmedColumn.includes('Futsal')) {
                 // Check if column has quotes
                 if (firstColumn.startsWith('"') && firstColumn.endsWith('"')) {
                     // Remove trailing quote, add Futsal, add quote back
