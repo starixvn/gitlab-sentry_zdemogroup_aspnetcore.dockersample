@@ -1,14 +1,10 @@
 
 const config = require("./config.js");
 const axios = require('axios');
-const { CookieJar } = require('tough-cookie');
-const { wrapper } = require('axios-cookiejar-support');
 const fs = require('fs');
 const FormData = require('form-data');
 const path = require('path');
     
-const jar = new CookieJar();
-const client = wrapper(axios.create({ jar }));
 
 async function uploadFile(filePath) {
     const url = new URL(`${config.infoSite.uploadUrl}`);        

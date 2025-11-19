@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all Node.js dependencies (including devDependencies for Playwright CLI)
-RUN npm install axios@^1.13.2 axios-cookiejar-support@^6.0.4 form-data@^4.0.5 tough-cookie@^6.0.0
+RUN --mount=type=cache,target=/root/.npm npm install
 
 # Copy application files
 COPY . .

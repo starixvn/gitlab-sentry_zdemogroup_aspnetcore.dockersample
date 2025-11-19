@@ -186,49 +186,6 @@ function convertLatestCsvToXlsx(directory, deleteOriginal = false) {
   }
 }
 
-// Command-line usage
-if (require.main === module) {
-  const args = process.argv.slice(2);
-
-  if (args.length === 0) {
-    // Default: convert all CSV files in download directory
-    const bgDir = config.downloadDir;
-    convertAllCsvToXlsx(bgDir, false);
-  } else if (args[0] === "--latest") {
-    // Convert only the latest CSV file
-    const bgDir = config.downloadDir;
-    convertLatestCsvToXlsx(bgDir, false);
-  } else if (args[0] === "--all") {
-    // Convert all CSV files
-    const bgDir = args[1] || config.downloadDir;
-    const deleteOriginal = args.includes("--delete");
-    convertAllCsvToXlsx(bgDir, deleteOriginal);
-  } else if (args[0] === "--delete-csv") {
-    // Convert all and delete originals
-    const bgDir = args[1] || config.downloadDir;
-    convertAllCsvToXlsx(bgDir, true);
-  } else if (args[0] === "--merge-rugby") {
-    // Merge rugbyLeague and rugbyUnion files
-    const bgDir = args[1] || config.downloadDir;
-    const dateStr = args[2] || null;
-    mergeRugbyFiles(bgDir, dateStr);
-  } else if (args[0] === "--merge-football-futsal") {
-    // Merge football and futsal files
-    const bgDir = args[1] || config.downloadDir;
-    const dateStr = args[2] || null;
-    mergeFootballAndFutsalFiles(bgDir, dateStr);
-  } else if (fs.existsSync(args[0])) {
-    // Convert specific file
-    const deleteOriginal = args.includes("--delete");
-    const xlsxPath = convertCsvToXlsx(args[0]);
-
-    if (deleteOriginal) {
-      fs.unlinkSync(args[0]);
-      console.log(`\n✓ Deleted original CSV`);
-    }
-  }
-}
-
 function mergeRugbyFilesInCaseFileNotFound(rugbyLeaguePath, rugbyUnionPath, mergedFilePath) {
     const leagueExists = fileExists(rugbyLeaguePath);
     const unionExists = fileExists(rugbyUnionPath);
@@ -398,6 +355,46 @@ function mergeRugbyFiles(directory = null, dateStr = null) {
   }
 }
 
+function mergeSoccerFilesInCaseFileNotFound(soccerPath, futsalPath, mergedFilePath) {
+    const soccerExists = fileExists(soccerPath);
+    const futsalExists = fileExists(futsalPath);
+
+    console.log(`======================================\n`);
+    console.log(`Soccer File: ${soccerPath}`);
+    console.log(`Futsal File: ${futsalPath}\n`);
+    console.log(`Merged File: ${mergedFilePath}\n`);
+    console.log(`Soccer exists: ${soccerExists}`);
+    console.log(`Futsal exists: ${futsalExists}`);
+    console.log(`======================================\n`);
+    // Case 1: Both files exist - proceed to merge
+    if (soccerExists && futsalExists) {
+        return true
+    }
+
+    // Case 2: Neither file exists - nothing to merge
+    if (!soccerExists && !futsalExists) {
+        console.log(`Both Soccer and Futsal files are not found.`);
+        throw new Error(`Both Soccer and Futsal files are not found. ${soccerPath} and ${futsalPath}`);
+    }
+
+    let sourceFilePath = null;
+    
+    if (futsalExists && !soccerExists) {
+        console.log(`Only found Futsal file: ${futsalPath}`);
+        sourceFilePath = futsalPath;
+    }
+    else if (!futsalExists && soccerExists) {
+        console.log(`Only found Soccer file: ${soccerPath}`);
+        sourceFilePath = soccerPath;
+    }
+    
+    // Copy the existing file to the merged file path
+    fs.copyFileSync(sourceFilePath, mergedFilePath);
+    fs.unlinkSync(sourceFilePath);
+    console.log(`\n✓ Single soccer file created: ${path.basename(mergedFilePath)}`);
+    return false;
+}
+
 /**
  * Merge football and futsal XLSX files into one XLSX file
  * @param {string} directory - Directory path (defaults to config.downloadDir)
@@ -421,18 +418,15 @@ function mergeFootballAndFutsalFiles(directory = null, dateStr = null) {
     // football uses fileCode: 'football', futsal uses fileCode: 'fs'
     const footballPath = path.join(targetDir, `BG-${dateStr}sco.xlsx`);
     const futsalPath = path.join(targetDir, `BG-${dateStr}fs.xlsx`);
+    const mergedFilePath = path.join(targetDir, `BG-${dateStr}sc.xlsx`);
 
     console.log(`\nMerging Football files:`);
     console.log(`  Football: ${path.basename(footballPath)}`);
     console.log(`  Futsal:  ${path.basename(futsalPath)}`);
+    console.log(`  Merged:  ${path.basename(mergedFilePath)}`);
 
-    // Check if files exist
-    if (!fs.existsSync(footballPath)) {
-      throw new Error(`Football file not found: ${footballPath}`);
-    }
-
-    if (!fs.existsSync(futsalPath)) {
-      throw new Error(`Futsal file not found: ${futsalPath}`);
+    if(!mergeSoccerFilesInCaseFileNotFound(footballPath, futsalPath, mergedFilePath)) {
+        return mergedFilePath;
     }
 
     // Read both XLSX files
@@ -486,10 +480,7 @@ function mergeFootballAndFutsalFiles(directory = null, dateStr = null) {
     setXlsxColumnWidths(mergedSheet);
 
     XLSX.utils.book_append_sheet(mergedWorkbook, mergedSheet, "Sheet1");
-
-    // Output file path
-    const mergedFilePath = path.join(targetDir, `BG-${dateStr}sc.xlsx`);
-
+    
     // Write merged XLSX file
     XLSX.writeFile(mergedWorkbook, mergedFilePath);
 
@@ -519,6 +510,50 @@ function mergeFootballAndFutsalFiles(directory = null, dateStr = null) {
   } catch (error) {
     console.error("❌ Error merging Football files:", error.message);
     throw error;
+  }
+}
+
+
+// Command-line usage
+if (require.main === module) {
+  const args = process.argv.slice(2);
+
+  if (args.length === 0) {
+    // Default: convert all CSV files in download directory
+    const bgDir = config.downloadDir;
+    convertAllCsvToXlsx(bgDir, false);
+  } else if (args[0] === "--latest") {
+    // Convert only the latest CSV file
+    const bgDir = config.downloadDir;
+    convertLatestCsvToXlsx(bgDir, false);
+  } else if (args[0] === "--all") {
+    // Convert all CSV files
+    const bgDir = args[1] || config.downloadDir;
+    const deleteOriginal = args.includes("--delete");
+    convertAllCsvToXlsx(bgDir, deleteOriginal);
+  } else if (args[0] === "--delete-csv") {
+    // Convert all and delete originals
+    const bgDir = args[1] || config.downloadDir;
+    convertAllCsvToXlsx(bgDir, true);
+  } else if (args[0] === "--merge-rugby") {
+    // Merge rugbyLeague and rugbyUnion files
+    const bgDir = args[1] || config.downloadDir;
+    const dateStr = args[2] || null;
+    mergeRugbyFiles(bgDir, dateStr);
+  } else if (args[0] === "--merge-football-futsal") {
+    // Merge football and futsal files
+    const bgDir = args[1] || config.downloadDir;
+    const dateStr = args[2] || null;
+    mergeFootballAndFutsalFiles(bgDir, dateStr);
+  } else if (fs.existsSync(args[0])) {
+    // Convert specific file
+    const deleteOriginal = args.includes("--delete");
+    const xlsxPath = convertCsvToXlsx(args[0]);
+
+    if (deleteOriginal) {
+      fs.unlinkSync(args[0]);
+      console.log(`\n✓ Deleted original CSV`);
+    }
   }
 }
 

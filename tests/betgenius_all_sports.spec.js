@@ -496,6 +496,8 @@ async function overrideEventRequest(page) {
 test.describe("Betgenius Automation - All Sports", () => {
   // Configure to run sequentially to ensure email sends only once
   test.describe.configure({ mode: "serial" });
+  let hasFailures = false;
+
   // Clean up all xlsx and csv files before running tests
   test.beforeAll(async () => {
     console.log("\n🧹 Cleaning up all existing xlsx and csv files...");
@@ -516,7 +518,19 @@ test.describe("Betgenius Automation - All Sports", () => {
     });
   });
 
+  test.afterEach(async ({}, testInfo) => {    
+    if (testInfo.status !== 'passed') {
+      hasFailures = true;
+      console.log(`❌ Test fail: ${testInfo.title}`);
+    }
+  });
+
   test.afterAll(async () => {
+    console.log('--- Starting afterAll ---');
+    if (hasFailures) {
+      console.log('⚠️ Found at least one test fail. **Skip** important code afterAll (clean-up, etc.).');
+      return;
+    }
     console.log("\nAll sports tests completed.");
     console.log("Merge soccer files...");
     await mergeSoccerSports();
@@ -535,12 +549,14 @@ test.describe("Betgenius Automation - All Sports", () => {
     ]);
   });
 
-  test("Download futsal data", async ({ page }) => {
-    await testSport(page, "futsal");
-  });
   test("Download soccer data", async ({ page }) => {
     await testSport(page, "soccer");
   });
+  
+  test("Download futsal data", async ({ page }) => {
+    await testSport(page, "futsal");
+  });
+  
   test("Download rugbyLeague data", async ({ page }) => {
     await testSport(page, "rugbyLeague");
   });
