@@ -5,6 +5,7 @@ const fs = require("fs");
 const { sendTodayFilesEmail } = require("./send-email.js");
 const config = require("./config.js");
 const cron = require("node-cron");
+const { uploadAllFiles } = require("./infosite_upload.js");
 
 const app = express();
 const PORT = process.env.PORT || config.port;
@@ -114,13 +115,24 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
       job.status = "completed";
       successfulJob = job;
       failedJob = {};
-      sendEmailAfterAllTests(job).then(() => {
-        console.log(`[${jobId}] Email sent:`);
-      });
+      uploadAllFiles()
+        .then(() => {
+          console.log(`[${jobId}] Upload all files successfully.`);
+        })
+        .catch((error) => {
+          console.error(`[${jobId}] Error uploading files:`, error);
+        });
+      sendEmailAfterAllTests(job)
+        .then(() => {
+          console.log(`[${jobId}] Email sent:`);
+        })
+        .catch((error) => {
+          console.error(`[${jobId}] Error sending email:`, error);
+        });
 
       console.log(`[${jobId}] Job completed successfully.`);
     }
-    runningJob = {};    
+    runningJob = {};
   });
 
   // Handle errors
@@ -132,14 +144,14 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
 
     runningJob = {};
     successfulJob = {};
-    failedJob = job;    
+    failedJob = job;
   });
 
   return {
     jobId,
     status: "started",
     message: `Job ${jobId} started for ${jobType}`,
-    startTime: timestamp,    
+    startTime: timestamp,
   };
 }
 
@@ -194,7 +206,7 @@ app.get("/stop", (req, res) => {
   try {
     runningJob = {};
     successfulJob = {};
-    failedJob = {};    
+    failedJob = {};
     const jobs = {
       running: runningJob,
       successful: successfulJob,
@@ -218,7 +230,7 @@ app.get("/", (req, res) => {
     const jobs = {
       running: runningJob,
       successful: successfulJob,
-      failed: failedJob,      
+      failed: failedJob,
       now: new Date().toLocaleString(),
     };
 
@@ -250,15 +262,20 @@ app.use((req, res) => {
 
 // Set timezone for job to Asia/Ho_Chi_Minh (GMT+7)
 cron.schedule(
-  // Cron String: "50 4,5,6,7,8 * * *"
-  // Purpose: run at minute 50 of hours 4, 5, 6, 7, and 8
-  "30 4 * * *",
+  "0 * * * *",
   () => {
     console.log(
-      `Run job daily at ${new Date().toLocaleString("en-US", {
+      `Run job hourly at ${new Date().toLocaleString("en-US", {
         timeZone: "Asia/Ho_Chi_Minh",
       })}`
     );
+    const hour = new Date().getHours();
+    if (hour % 4 !== 0) {
+      console.log("Skip this hour, only run every 4 hours");
+      return;
+    }
+
+    console.log(`Execute all-sports job at ${new Date().toLocaleString()}`);
     const testFile = "tests/betgenius_all_sports.spec.js";
     executeTest(testFile, "all-sports", "All Sports");
   },

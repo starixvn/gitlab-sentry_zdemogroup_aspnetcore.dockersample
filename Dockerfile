@@ -9,6 +9,7 @@ COPY package*.json ./
 
 # Install all Node.js dependencies (including devDependencies for Playwright CLI)
 RUN --mount=type=cache,target=/root/.npm npm install
+RUN --mount=type=cache,target=/root/.npm npm install axios@1.13.2 form-data@4.0.5
 
 # Copy application files
 COPY . .
