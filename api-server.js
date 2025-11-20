@@ -115,13 +115,14 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
       job.status = "completed";
       successfulJob = job;
       failedJob = {};
+      /*
       uploadAllFiles()
         .then(() => {
           console.log(`[${jobId}] Upload all files successfully.`);
         })
         .catch((error) => {
           console.error(`[${jobId}] Error uploading files:`, error);
-        });
+        });*/
       sendEmailAfterAllTests(job)
         .then(() => {
           console.log(`[${jobId}] Email sent:`);
