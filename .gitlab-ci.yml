@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: main
+    ref: auto-create-mr
     file: nexcel.gitlab-ci.yml
