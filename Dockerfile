@@ -5,10 +5,10 @@ FROM hub.nexdev.net/base/node:20-bg-download
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
-
+COPY package.json ./
+COPY package-lock.json ./
 # Install all Node.js dependencies (including devDependencies for Playwright CLI)
-RUN npm install axios@1.13.2 form-data@4.0.5
+RUN npm ci
 
 # Copy application files
 COPY . .
