@@ -518,17 +518,19 @@ test.describe("Betgenius Automation - All Sports", () => {
     });
   });
 
-  test.afterEach(async ({}, testInfo) => {    
-    if (testInfo.status !== 'passed') {
+  test.afterEach(async ({}, testInfo) => {
+    if (testInfo.status !== "passed") {
       hasFailures = true;
       console.log(`❌ Test fail: ${testInfo.title}`);
     }
   });
 
   test.afterAll(async () => {
-    console.log('--- Starting afterAll ---');
+    console.log("--- Starting afterAll ---");
     if (hasFailures) {
-      console.log('⚠️ Found at least one test fail. **Skip** important code afterAll (clean-up, etc.).');
+      console.log(
+        "⚠️ Found at least one test fail. **Skip** important code afterAll (clean-up, etc.)."
+      );
       return;
     }
     console.log("\nAll sports tests completed.");
@@ -552,11 +554,11 @@ test.describe("Betgenius Automation - All Sports", () => {
   test("Download soccer data", async ({ page }) => {
     await testSport(page, "soccer");
   });
-  
+
   test("Download futsal data", async ({ page }) => {
     await testSport(page, "futsal");
   });
-  
+
   test("Download rugbyLeague data", async ({ page }) => {
     await testSport(page, "rugbyLeague");
   });
@@ -573,6 +575,7 @@ test.describe("Betgenius Automation - All Sports", () => {
   test("Download baseball data", async ({ page }) => {
     await testSport(page, "baseball");
   });
+
   test("Download basketball data", async ({ page }) => {
     await testSport(page, "basketball");
   });

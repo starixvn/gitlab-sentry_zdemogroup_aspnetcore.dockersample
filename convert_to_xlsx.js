@@ -4,7 +4,7 @@ const path = require("path");
 const config = require("./config.js");
 
 function fileExists(filePath) {
-    return fs.existsSync(filePath);
+  return fs.existsSync(filePath);
 }
 
 /**
@@ -186,43 +186,48 @@ function convertLatestCsvToXlsx(directory, deleteOriginal = false) {
   }
 }
 
-function mergeRugbyFilesInCaseFileNotFound(rugbyLeaguePath, rugbyUnionPath, mergedFilePath) {
-    const leagueExists = fileExists(rugbyLeaguePath);
-    const unionExists = fileExists(rugbyUnionPath);
+function mergeRugbyFilesInCaseFileNotFound(
+  rugbyLeaguePath,
+  rugbyUnionPath,
+  mergedFilePath
+) {
+  const leagueExists = fileExists(rugbyLeaguePath);
+  const unionExists = fileExists(rugbyUnionPath);
 
-    console.log(`======================================\n`);
-    console.log(`league File: ${rugbyLeaguePath}`);
-    console.log(`Union File: ${rugbyUnionPath}\n`);
-    console.log(`Merged File: ${mergedFilePath}\n`);
-    console.log(`Rugby League exists: ${leagueExists}`);
-    console.log(`Rugby Union exists: ${unionExists}`);
-    console.log(`======================================\n`);
-    // Case 1: Both files exist - proceed to merge
-    if (leagueExists && unionExists) {
-        return true
-    }
+  console.log(`======================================\n`);
+  console.log(`league File: ${rugbyLeaguePath}`);
+  console.log(`Union File: ${rugbyUnionPath}\n`);
+  console.log(`Merged File: ${mergedFilePath}\n`);
+  console.log(`Rugby League exists: ${leagueExists}`);
+  console.log(`Rugby Union exists: ${unionExists}`);
+  console.log(`======================================\n`);
+  // Case 1: Both files exist - proceed to merge
+  if (leagueExists && unionExists) {
+    return true;
+  }
 
-    // Case 2: Neither file exists - nothing to merge
-    if (!leagueExists && !unionExists) {
-        console.log(`Neither Rugby League nor Rugby Union file found.`);
-        return false;
-    }
-
-    let sourceFilePath = null;
-    
-    if (unionExists && !leagueExists) {
-        console.log(`Only found Rugby Union file: ${rugbyUnionPath}`);
-        sourceFilePath = rugbyUnionPath;
-    }
-    else if (!unionExists && leagueExists) {
-        console.log(`Only found Rugby League file: ${rugbyLeaguePath}`);
-        sourceFilePath = rugbyLeaguePath;
-    }
-    // Copy the existing file to the merged file path
-    fs.copyFileSync(sourceFilePath, mergedFilePath);
-    fs.unlinkSync(sourceFilePath);
-    console.log(`\n✓ Single rugby file created: ${path.basename(mergedFilePath)}`);
+  // Case 2: Neither file exists - nothing to merge
+  if (!leagueExists && !unionExists) {
+    console.log(`Neither Rugby League nor Rugby Union file found.`);
     return false;
+  }
+
+  let sourceFilePath = null;
+
+  if (unionExists && !leagueExists) {
+    console.log(`Only found Rugby Union file: ${rugbyUnionPath}`);
+    sourceFilePath = rugbyUnionPath;
+  } else if (!unionExists && leagueExists) {
+    console.log(`Only found Rugby League file: ${rugbyLeaguePath}`);
+    sourceFilePath = rugbyLeaguePath;
+  }
+  // Copy the existing file to the merged file path
+  fs.copyFileSync(sourceFilePath, mergedFilePath);
+  fs.unlinkSync(sourceFilePath);
+  console.log(
+    `\n✓ Single rugby file created: ${path.basename(mergedFilePath)}`
+  );
+  return false;
 }
 
 /**
@@ -250,9 +255,19 @@ function mergeRugbyFiles(directory = null, dateStr = null) {
     const rugbyUnionPath = path.join(targetDir, `BG-${dateStr}ru.xlsx`);
     const mergedFilePath = path.join(targetDir, `BG-${dateStr}rugby.xlsx`);
 
-    if(mergeRugbyFilesInCaseFileNotFound(rugbyLeaguePath, rugbyUnionPath, mergedFilePath) === false) {
-        console.log(`\nNo merge needed, single rugby file created: ${path.basename(mergedFilePath)}`);
-        return mergedFilePath;
+    if (
+      mergeRugbyFilesInCaseFileNotFound(
+        rugbyLeaguePath,
+        rugbyUnionPath,
+        mergedFilePath
+      ) === false
+    ) {
+      console.log(
+        `\nNo merge needed, single rugby file created: ${path.basename(
+          mergedFilePath
+        )}`
+      );
+      return mergedFilePath;
     }
 
     console.log(`\nMerging Rugby files:`);
@@ -318,7 +333,6 @@ function mergeRugbyFiles(directory = null, dateStr = null) {
     setXlsxColumnWidths(mergedSheet);
     XLSX.utils.book_append_sheet(mergedWorkbook, mergedSheet, "Rugby");
 
-    
     // Write merged XLSX file
     XLSX.writeFile(mergedWorkbook, mergedFilePath);
 
@@ -355,44 +369,49 @@ function mergeRugbyFiles(directory = null, dateStr = null) {
   }
 }
 
-function mergeSoccerFilesInCaseFileNotFound(soccerPath, futsalPath, mergedFilePath) {
-    const soccerExists = fileExists(soccerPath);
-    const futsalExists = fileExists(futsalPath);
+function mergeSoccerFilesInCaseFileNotFound(
+  soccerPath,
+  futsalPath,
+  mergedFilePath
+) {
+  const soccerExists = fileExists(soccerPath);
+  const futsalExists = fileExists(futsalPath);
 
-    console.log(`======================================\n`);
-    console.log(`Soccer File: ${soccerPath}`);
-    console.log(`Futsal File: ${futsalPath}\n`);
-    console.log(`Merged File: ${mergedFilePath}\n`);
-    console.log(`Soccer exists: ${soccerExists}`);
-    console.log(`Futsal exists: ${futsalExists}`);
-    console.log(`======================================\n`);
-    // Case 1: Both files exist - proceed to merge
-    if (soccerExists && futsalExists) {
-        return true
-    }
+  console.log(`======================================\n`);
+  console.log(`Soccer File: ${soccerPath}`);
+  console.log(`Futsal File: ${futsalPath}\n`);
+  console.log(`Merged File: ${mergedFilePath}\n`);
+  console.log(`Soccer exists: ${soccerExists}`);
+  console.log(`Futsal exists: ${futsalExists}`);
+  console.log(`======================================\n`);
+  // Case 1: Both files exist - proceed to merge
+  if (soccerExists && futsalExists) {
+    return true;
+  }
 
-    // Case 2: Neither file exists - nothing to merge
-    if (!soccerExists && !futsalExists) {
-        console.log(`Both Soccer and Futsal files are not found.`);
-        throw new Error(`Both Soccer and Futsal files are not found. ${soccerPath} and ${futsalPath}`);
-    }
-
-    let sourceFilePath = null;
-    
-    if (futsalExists && !soccerExists) {
-        console.log(`Only found Futsal file: ${futsalPath}`);
-        sourceFilePath = futsalPath;
-    }
-    else if (!futsalExists && soccerExists) {
-        console.log(`Only found Soccer file: ${soccerPath}`);
-        sourceFilePath = soccerPath;
-    }
-    
-    // Copy the existing file to the merged file path
-    fs.copyFileSync(sourceFilePath, mergedFilePath);
-    fs.unlinkSync(sourceFilePath);
-    console.log(`\n✓ Single soccer file created: ${path.basename(mergedFilePath)}`);
+  // Case 2: Neither file exists - nothing to merge
+  if (!soccerExists && !futsalExists) {
+    console.log(`Both Soccer and Futsal files are not found.`);
     return false;
+  }
+
+  let sourceFilePath = null;
+
+  if (futsalExists && !soccerExists) {
+    console.log(`Only found Futsal file: ${futsalPath}`);
+    sourceFilePath = futsalPath;
+  } else if (!futsalExists && soccerExists) {
+    console.log(`Only found Soccer file: ${soccerPath}`);
+    sourceFilePath = soccerPath;
+  }
+
+  // Copy the existing file to the merged file path
+  fs.copyFileSync(sourceFilePath, mergedFilePath);
+  fs.unlinkSync(sourceFilePath);
+  console.log(
+    `\n✓ Single soccer file created: ${path.basename(mergedFilePath)}`
+  );
+  return false;
 }
 
 /**
@@ -425,8 +444,14 @@ function mergeFootballAndFutsalFiles(directory = null, dateStr = null) {
     console.log(`  Futsal:  ${path.basename(futsalPath)}`);
     console.log(`  Merged:  ${path.basename(mergedFilePath)}`);
 
-    if(!mergeSoccerFilesInCaseFileNotFound(footballPath, futsalPath, mergedFilePath)) {
-        return mergedFilePath;
+    if (
+      !mergeSoccerFilesInCaseFileNotFound(
+        footballPath,
+        futsalPath,
+        mergedFilePath
+      )
+    ) {
+      return mergedFilePath;
     }
 
     // Read both XLSX files
@@ -480,7 +505,7 @@ function mergeFootballAndFutsalFiles(directory = null, dateStr = null) {
     setXlsxColumnWidths(mergedSheet);
 
     XLSX.utils.book_append_sheet(mergedWorkbook, mergedSheet, "Sheet1");
-    
+
     // Write merged XLSX file
     XLSX.writeFile(mergedWorkbook, mergedFilePath);
 
@@ -512,7 +537,6 @@ function mergeFootballAndFutsalFiles(directory = null, dateStr = null) {
     throw error;
   }
 }
-
 
 // Command-line usage
 if (require.main === module) {

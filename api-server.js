@@ -2,10 +2,14 @@ const express = require("express");
 const cors = require("cors");
 const { spawn } = require("child_process");
 const fs = require("fs");
-const { sendTodayFilesEmail } = require("./send-email.js");
+const {
+  sendTodayFilesEmail,
+  sendEmailAfterUploadingFiles,
+} = require("./send-email.js");
+
 const config = require("./config.js");
 const cron = require("node-cron");
-const { uploadAllFiles } = require("./infosite_upload.js");
+const { uploadAllFiles, hasUnfinishedTasks } = require("./infosite_upload.js");
 
 const app = express();
 const PORT = process.env.PORT || config.port;
@@ -115,14 +119,7 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
       job.status = "completed";
       successfulJob = job;
       failedJob = {};
-      /*
-      uploadAllFiles()
-        .then(() => {
-          console.log(`[${jobId}] Upload all files successfully.`);
-        })
-        .catch((error) => {
-          console.error(`[${jobId}] Error uploading files:`, error);
-        });*/
+
       sendEmailAfterAllTests(job)
         .then(() => {
           console.log(`[${jobId}] Email sent:`);
@@ -130,7 +127,15 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
         .catch((error) => {
           console.error(`[${jobId}] Error sending email:`, error);
         });
-
+      /*
+      uploadFilesAndSendMail()
+        .then(() => {
+          console.log(`[${jobId}] Upload all files successfully.`);
+        })
+        .catch((error) => {
+          console.error(`[${jobId}] Error uploading files:`, error);
+        });
+*/
       console.log(`[${jobId}] Job completed successfully.`);
     }
     runningJob = {};
@@ -175,6 +180,11 @@ async function sendEmailAfterAllTests(job) {
     console.log("\nFAILED");
   }
   job.output.push(text);
+}
+
+async function uploadFilesAndSendMail() {
+  const files = await uploadAllFiles();
+  await sendEmailAfterAllTests(files);
 }
 
 // Routes
@@ -222,17 +232,27 @@ app.get("/stop", (req, res) => {
     });
   }
 });
+app.get("/axios", async (req, res) => {
+  const unfinished = await hasUnfinishedTasks();
+  res.json({ unfinished });
+});
 
-/**
- * Get / - Return the information of the last job
- */
 app.get("/", (req, res) => {
   try {
+    const now = new Date();
+    const options = {
+      timeZone: "Asia/Ho_Chi_Minh",
+      hour: "2-digit",
+      hour12: false,
+    };
+    const hourString = now.toLocaleTimeString("en-US", options);
+    const currentHour = parseInt(hourString, 10);
     const jobs = {
       running: runningJob,
       successful: successfulJob,
       failed: failedJob,
       now: new Date().toLocaleString(),
+      hourGMT7: currentHour,
     };
 
     res.json(jobs);
@@ -270,8 +290,16 @@ cron.schedule(
         timeZone: "Asia/Ho_Chi_Minh",
       })}`
     );
-    const hour = new Date().getHours();
-    if (hour % 4 !== 0) {
+
+    const now = new Date();
+    const options = {
+      timeZone: "Asia/Ho_Chi_Minh",
+      hour: "2-digit",
+      hour12: false,
+    };
+    const hourString = now.toLocaleTimeString("en-US", options);
+    const currentHour = parseInt(hourString, 10);
+    if (currentHour % 4 !== 0) {
       console.log("Skip this hour, only run every 4 hours");
       return;
     }
