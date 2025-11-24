@@ -9,6 +9,9 @@ COPY package.json ./
 COPY package-lock.json ./
 # Install all Node.js dependencies (including devDependencies for Playwright CLI)
 RUN npm i
+
+RUN npx playwright install
+
 RUN apt-get update && \
     apt-get install -y curl nano && \
     rm -rf /var/lib/apt/lists/*
