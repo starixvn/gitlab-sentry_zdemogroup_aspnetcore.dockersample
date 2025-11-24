@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json ./
 COPY package-lock.json ./
 # Install all Node.js dependencies (including devDependencies for Playwright CLI)
-RUN npm i
+RUN npm ci
 
 # Copy application files
 COPY . .
