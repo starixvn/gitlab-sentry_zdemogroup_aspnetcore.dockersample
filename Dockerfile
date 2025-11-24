@@ -27,8 +27,9 @@ ENV NODE_ENV=production
 ENV DOWNLOAD_DIR=/app/downloads
 
 # LOCAL
-ENV HTTP_PROXY="http://proxysqd.nexdev.net:3128/" 
+ENV HTTP_PROXY="http://proxysqd.nexdev.net:3128/"
 ENV HTTPS_PROXY="http://proxysqd.nexdev.net:3128/"
+ENV NO_PROXY="localhost,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.nexdev.net"
 
 # Default command - can be overridden
 CMD ["npm", "run", "api"]
