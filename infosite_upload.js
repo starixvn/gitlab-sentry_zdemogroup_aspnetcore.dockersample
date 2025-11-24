@@ -1,9 +1,13 @@
 const config = require("./config.js");
 const axios = require("axios");
+const https = require("https");
 const fs = require("fs");
 const fsPromises = require("fs").promises;
 const FormData = require("form-data");
 const path = require("path");
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+});
 
 async function uploadAllFiles() {
   const allFiles = [];
@@ -73,6 +77,7 @@ async function uploadFile(filePath) {
   try {
     // 5. Setup request header
     const response = await axios.post(url, form, {
+      httpsAgent: agent,
       headers: {
         ...form.getHeaders(),
         Cookie: "InfoSite_UserId=699; InfoSite_UserName=Nexcel1",
@@ -108,6 +113,7 @@ async function hasUnfinishedTasks(service_name) {
   );
   try {
     const response = await axios.get(url, {
+      httpsAgent: agent,
       headers: {
         Cookie: "InfoSite_UserId=699; InfoSite_UserName=Nexcel1",
       },
