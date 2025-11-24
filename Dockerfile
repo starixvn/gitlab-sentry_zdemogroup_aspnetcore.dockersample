@@ -8,11 +8,11 @@ WORKDIR /app
 COPY package.json ./
 COPY package-lock.json ./
 # Install all Node.js dependencies (including devDependencies for Playwright CLI)
-RUN npm ci
+RUN npm i
 RUN apt-get update && \
     apt-get install -y curl nano && \
     rm -rf /var/lib/apt/lists/*
-    
+
 # Copy application files
 COPY . .
 
