@@ -120,23 +120,15 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
       successfulJob = job;
       failedJob = {};
 
-      sendEmailAfterAllTests(job)
+      uploadAndSendMails(job)
         .then(() => {
-          console.log(`[${jobId}] Email sent:`);
+          job.output.push(`[${jobId}] DONE:`);
         })
         .catch((error) => {
-          console.error(`[${jobId}] Error sending email:`, error);
+          job.output.push(
+            `[${jobId}] Error when send mails and upload files: ${error}`
+          );
         });
-      /*
-      uploadFilesAndSendMail()
-        .then(() => {
-          console.log(`[${jobId}] Upload all files successfully.`);
-        })
-        .catch((error) => {
-          console.error(`[${jobId}] Error uploading files:`, error);
-        });
-*/
-      console.log(`[${jobId}] Job completed successfully.`);
     }
     runningJob = {};
   });
@@ -161,30 +153,18 @@ function executeTest(testFile, jobType, sportName = null, triedCount = 0) {
   };
 }
 
-async function sendEmailAfterAllTests(job) {
+async function uploadAndSendMails(job) {
   let text = "\n\n📧 Sending all downloaded files in one email...";
-
-  try {
-    const emailResult = await sendTodayFilesEmail();
-    if (emailResult.success) {
-      text += `\n✅ All ${
-        emailResult.filesAttached
-      } file(s) sent successfully to: ${emailResult.recipients.join(", ")}`;
-      console.log(text);
-    }
-  } catch (error) {
-    text +=
-      `\n⚠ Could not send email: ${error.message}` +
-      "   You can manually send all files by running: npm run email-send-all";
-    console.log(text);
-    console.log("\nFAILED");
+  const emailResult = await sendTodayFilesEmail();
+  if (emailResult.success) {
+    text += `\n✅ All ${
+      emailResult.filesAttached
+    } file(s) sent successfully to: ${emailResult.recipients.join(", ")}`;
   }
+  const allFiles = await uploadAllFiles();
+  text += `\n\n⬆️ Uploading all downloaded files to InfoSite ${allFiles}...`;
+  await sendEmailAfterUploadingFiles(allFiles);
   job.output.push(text);
-}
-
-async function uploadFilesAndSendMail() {
-  const files = await uploadAllFiles();
-  await sendEmailAfterAllTests(files);
 }
 
 // Routes

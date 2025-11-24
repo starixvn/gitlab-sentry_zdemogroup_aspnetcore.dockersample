@@ -36,7 +36,6 @@
     "sport": "node run-single-sport.js"
   },
   "dependencies": {
-    "aws-sdk": "^2.1692.0",
     "axios": "^1.13.2",
     "axios-cookiejar-support": "^6.0.4",
     "cors": "^2.8.5",

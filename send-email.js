@@ -447,4 +447,5 @@ module.exports = {
   sendBatchEmail,
   sendTodayFilesEmail,
   getTodayXlsxFiles,
+  sendEmailAfterUploadingFiles,
 };
