@@ -1,4 +1,4 @@
 include:
   - project: ci/core-cicd
-    ref: main
+    ref: show_app_logs
     file: nexcel.gitlab-ci.yml
